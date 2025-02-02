@@ -4,8 +4,8 @@ set -e  # Exit the script if any command fails
 echo "Updating package list and upgrading packages..."
 sudo apt update && sudo apt upgrade -y
 
-echo "Installing mailutils..."
-sudo apt install mailutils -y
+echo "Installing necessary packages..."
+sudo apt install -y curl
 
 echo "Downloading and running sr-system.sh..."
 curl -O https://raw.githubusercontent.com/MasterHide/A-M-S/main/sr-system.sh
