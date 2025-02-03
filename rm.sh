@@ -5,5 +5,6 @@
 rm -f /root/sr-system.sh
 rm -f /home/ubuntu/sr-system.sh
 rm -f /opt/sr-system.sh
+rm -f /opt/hiddify-manager/sr-system.sh
 
 echo "Removed the sr-system.sh file from /root, /home/ubuntu, and /opt."
