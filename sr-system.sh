@@ -69,9 +69,9 @@ if [[ "$notify" == "y" ]]; then
     send_telegram "$message"
     echo "✅ Initial test message sent to Telegram!"
 
-    # Schedule the cron job for Sri Lanka time zone (Asia/Colombo) at 3 AM
-    (sudo crontab -l 2>/dev/null; echo "0 3 * * * TZ=Asia/Colombo /bin/bash -c 'bot_token=\$(cat /etc/vps_bot_token.conf); chat_id=\$(cat /etc/vps_chat_id.conf); message=\"$message\"; curl -s -X POST \"https://api.telegram.org/bot\$bot_token/sendMessage\" -d \"chat_id=\$chat_id&text=\$message\"; sudo reboot'") | sudo crontab -
-    echo "✅ Reboot scheduled at 3 AM Sri Lanka time (Asia/Colombo) with Telegram notification."
+    # Schedule the cron job for Tehran time zone (Asia/Tehran) at 1 AM
+    (sudo crontab -l 2>/dev/null; echo "0 1 * * * TZ=Asia/Tehran /bin/bash -c 'bot_token=\$(cat /etc/vps_bot_token.conf); chat_id=\$(cat /etc/vps_chat_id.conf); message=\"$message\"; curl -s -X POST \"https://api.telegram.org/bot\$bot_token/sendMessage\" -d \"chat_id=\$chat_id&text=\$message\"; sudo reboot'") | sudo crontab -
+    echo "✅ Reboot scheduled at 1 AM Tehran time (which corresponds to 3 AM Sri Lanka time) with Telegram notification."
 
     # Ask user if they want to test the reboot immediately
     read -p "Do you want to test the reboot immediately and send another Telegram message? (y/n): " test_reboot
@@ -89,7 +89,7 @@ if [[ "$notify" == "y" ]]; then
         echo "No reboot initiated. Cron job will handle the next scheduled reboot."
     fi
 else
-    # Schedule the cron job without Telegram notification for Sri Lanka time zone (Asia/Colombo)
-    (sudo crontab -l 2>/dev/null; echo "0 3 * * * TZ=Asia/Colombo sudo reboot") | sudo crontab -
-    echo "✅ Reboot scheduled at 3 AM Sri Lanka time (Asia/Colombo) without Telegram notification."
+    # Schedule the cron job without Telegram notification for 1 AM Tehran time (3 AM Sri Lanka time)
+    (sudo crontab -l 2>/dev/null; echo "0 1 * * * TZ=Asia/Tehran sudo reboot") | sudo crontab -
+    echo "✅ Reboot scheduled at 1 AM Tehran time (which corresponds to 3 AM Sri Lanka time) without Telegram notification."
 fi
