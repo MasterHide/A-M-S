@@ -16,7 +16,7 @@ send_telegram() {
     fi
 }
 
-# Remove old bot token and chat ID files, and clear old cron jobs
+# Remove old bot token and chat ID files, and clear old cron jobs related to reboot
 remove_old_files_and_jobs() {
     # Remove bot token and chat ID files if they exist
     for file in /etc/vps_bot_token.conf /etc/vps_chat_id.conf; do
@@ -26,9 +26,9 @@ remove_old_files_and_jobs() {
         fi
     done
 
-    # Remove existing cron jobs related to VPS reboot (if any)
-    # Remove cron jobs that mention "reboot" and "Your VPS rebooted at"
-    (crontab -l 2>/dev/null | grep -v "Your VPS rebooted at" | grep -v "reboot") | sudo crontab -
+    # Remove cron jobs related to reboot (if any)
+    echo "Removing any existing cron jobs related to VPS reboot..."
+    (crontab -l 2>/dev/null | grep -v 'reboot') | sudo crontab -
     echo "Removed any existing cron jobs related to VPS reboot."
 }
 
@@ -42,19 +42,6 @@ set_timezone() {
     sudo timedatectl set-timezone "$timezone" || { echo "❌ Failed to set timezone"; exit 1; }
 }
 
-# Function to check if a cron job already exists
-check_existing_cron_job() {
-    local timezone="$1"
-    local message="$2"
-    
-    # Check if a cron job for reboot exists for the specified timezone
-    if crontab -l 2>/dev/null | grep -q "TZ=$timezone.*reboot"; then
-        echo "❌ Cron job for $timezone already exists."
-        return 1
-    fi
-    return 0
-}
-
 # Function to set cron job
 set_cron_job() {
     local timezone="$1"
@@ -62,12 +49,6 @@ set_cron_job() {
     local bot_token="$3"
     local chat_id="$4"
     
-    # Check if the cron job already exists
-    if ! check_existing_cron_job "$timezone" "$message"; then
-        echo "⚠️ Skipping duplicate cron job setup."
-        return
-    fi
-
     if [[ "$timezone" == "Asia/Colombo" ]]; then
         # Schedule for Sri Lanka time (3 AM Sri Lanka time)
         (sudo crontab -l 2>/dev/null; echo "0 3 * * * TZ=Asia/Colombo /bin/bash -c 'bot_token=\$(cat /etc/vps_bot_token.conf); chat_id=\$(cat /etc/vps_chat_id.conf); message=\"$message\"; curl -s -X POST \"https://api.telegram.org/bot\$bot_token/sendMessage\" -d \"chat_id=\$chat_id&text=\$message\"; sudo reboot'") | sudo crontab -
