@@ -42,6 +42,20 @@ set_timezone() {
     sudo timedatectl set-timezone "$timezone" || { echo "❌ Failed to set timezone"; exit 1; }
 }
 
+# Verify the timezone after reboot
+verify_timezone() {
+    local expected_timezone="$1"
+    # Check current timezone
+    current_timezone=$(timedatectl | grep "Time zone" | awk '{print $3}')
+    if [[ "$current_timezone" != "$expected_timezone" ]]; then
+        echo "❌ Timezone mismatch! Expected: $expected_timezone, but found: $current_timezone"
+        echo "Reapplying timezone..."
+        set_timezone "$expected_timezone"
+    else
+        echo "✅ Timezone verified: $expected_timezone"
+    fi
+}
+
 # Function to set cron job
 set_cron_job() {
     local timezone="$1"
@@ -81,6 +95,9 @@ fi
 
 # Set the server's timezone
 set_timezone "$timezone"
+
+# Verify the timezone
+verify_timezone "$timezone"
 
 # Ask the user if they want Telegram notifications
 read -p "Do you want to receive Telegram notifications for reboots? (y/n): " notify
