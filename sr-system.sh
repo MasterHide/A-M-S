@@ -65,11 +65,11 @@ set_cron_job() {
     
     if [[ "$timezone" == "Asia/Colombo" ]]; then
         # Schedule for Sri Lanka time (3 AM Sri Lanka time)
-        (sudo crontab -l 2>/dev/null; echo "0 3 * * * TZ=Asia/Colombo /bin/bash -c 'bot_token=\$(cat /etc/vps_bot_token.conf); chat_id=\$(cat /etc/vps_chat_id.conf); message=\"$message\"; curl -s -X POST \"https://api.telegram.org/bot\$bot_token/sendMessage\" -d \"chat_id=\$chat_id&text=\$message\"; sudo reboot'") | sudo crontab -
+        (sudo crontab -l 2>/dev/null; echo "0 1 * * * TZ=Asia/Colombo /bin/bash -c 'bot_token=\$(cat /etc/vps_bot_token.conf); chat_id=\$(cat /etc/vps_chat_id.conf); message=\"$message\"; curl -s -X POST \"https://api.telegram.org/bot\$bot_token/sendMessage\" -d \"chat_id=\$chat_id&text=\$message\"; sudo reboot'") | sudo crontab -
         echo "✅ Reboot scheduled at 3 AM Sri Lanka time with Telegram notification."
     elif [[ "$timezone" == "Asia/Tehran" ]]; then
         # Schedule for Tehran time (3 AM Tehran time)
-        (sudo crontab -l 2>/dev/null; echo "0 3 * * * TZ=Asia/Tehran /bin/bash -c 'bot_token=\$(cat /etc/vps_bot_token.conf); chat_id=\$(cat /etc/vps_chat_id.conf); message=\"$message\"; curl -s -X POST \"https://api.telegram.org/bot\$bot_token/sendMessage\" -d \"chat_id=\$chat_id&text=\$message\"; sudo reboot'") | sudo crontab -
+        (sudo crontab -l 2>/dev/null; echo "0 1 * * * TZ=Asia/Tehran /bin/bash -c 'bot_token=\$(cat /etc/vps_bot_token.conf); chat_id=\$(cat /etc/vps_chat_id.conf); message=\"$message\"; curl -s -X POST \"https://api.telegram.org/bot\$bot_token/sendMessage\" -d \"chat_id=\$chat_id&text=\$message\"; sudo reboot'") | sudo crontab -
         echo "✅ Reboot scheduled at 3 AM Tehran time with Telegram notification."
     else
         echo "❌ Unsupported timezone selected."
@@ -130,10 +130,10 @@ if [[ "$notify" == "y" ]]; then
 else
     # Schedule the cron job without Telegram notification
     if [[ "$timezone" == "Asia/Colombo" ]]; then
-        (sudo crontab -l 2>/dev/null; echo "0 3 * * * TZ=Asia/Colombo sudo reboot") | sudo crontab -
+        (sudo crontab -l 2>/dev/null; echo "0 1 * * * TZ=Asia/Colombo sudo reboot") | sudo crontab -
         echo "✅ Reboot scheduled at 3 AM Sri Lanka time without Telegram notification."
     elif [[ "$timezone" == "Asia/Tehran" ]]; then
-        (sudo crontab -l 2>/dev/null; echo "0 3 * * * TZ=Asia/Tehran sudo reboot") | sudo crontab -
+        (sudo crontab -l 2>/dev/null; echo "0 1 * * * TZ=Asia/Tehran sudo reboot") | sudo crontab -
         echo "✅ Reboot scheduled at 3 AM Tehran time without Telegram notification."
     fi
 fi
