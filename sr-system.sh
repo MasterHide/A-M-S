@@ -5,16 +5,29 @@ set -e  # Exit script if any command fails
 send_telegram() {
     local message="$1"
     local bot_token=$(sudo cat /etc/vps_bot_token.conf)  # Read token from file
-    local chat_id=$(sudo cat /etc/vps_chat_id.conf)  # Read chat_id from file
+    local chat_id=$(sudo cat /etc/vps_chat_id.conf)      # Read chat_id from file
 
     echo "Sending Telegram message: $message"
-    response=$(curl -s -w "%{http_code}" -o /dev/null --connect-timeout 10 -X POST "https://api.telegram.org/bot$bot_token/sendMessage" -d "chat_id=$chat_id&text=$message")
+
+    # Check if jq is installed
+    if ! command -v jq &>/dev/null; then
+        echo "❌ jq is not installed. Installing jq..."
+        sudo apt update && sudo apt install -y jq || { echo "❌ Failed to install jq. Exiting."; exit 1; }
+    fi
+
+    # URL-encode the message using jq
+    encoded_message=$(echo "$message" | jq -sRr @uri)
+
+    # Send the message to the Telegram API
+    response=$(curl -s -w "%{http_code}" -o /dev/null --connect-timeout 10 -X POST "https://api.telegram.org/bot$bot_token/sendMessage" -d "chat_id=$chat_id&text=$encoded_message")
 
     if [ "$response" -eq 200 ]; then
         echo "✅ Message sent successfully!"
     else
+        error_response=$(curl -s -X POST "https://api.telegram.org/bot$bot_token/sendMessage" -d "chat_id=$chat_id&text=$encoded_message")
         echo "❌ Failed to send message. Response code: $response"
-        exit 3
+        echo "Error details: $error_response"
+        exit 1
     fi
 }
 
@@ -45,7 +58,7 @@ set_timezone() {
         echo "✅ Timezone set to $timezone"
     else
         echo "❌ Failed to set timezone"
-        exit 4
+        exit 1
     fi
 }
 
@@ -84,7 +97,7 @@ set_cron_job() {
         echo "✅ Reboot scheduled at 3 AM Tehran time with Telegram notification."
     else
         echo "❌ Unsupported timezone selected."
-        exit 5
+        exit 1
     fi
 }
 
@@ -107,7 +120,7 @@ elif [[ "$choice" == "2" ]]; then
     timezone="Asia/Tehran"
 else
     echo "❌ Invalid choice. Exiting."
-    exit 6
+    exit 1
 fi
 
 # Set the server's timezone
@@ -127,7 +140,7 @@ if [[ "$notify" == "y" ]]; then
     # Validate inputs
     if [[ -z "$bot_token" || -z "$chat_id" ]]; then
         echo "❌ Invalid Bot Token or Chat ID. Exiting."
-        exit 7
+        exit 1
     fi
 
     # Save the bot token and chat ID to config files with secure permissions
