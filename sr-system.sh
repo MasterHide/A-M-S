@@ -4,20 +4,24 @@ set -e  # Exit script if any command fails
 # Function to send Telegram notification
 send_telegram() {
     local message="$1"
-    local bot_token=$(cat /etc/vps_bot_token.conf)  # Read token from file
-    local chat_id=$(cat /etc/vps_chat_id.conf)  # Read chat_id from file
-    response=$(curl -s -w "%{http_code}" -o /dev/null -X POST "https://api.telegram.org/bot$bot_token/sendMessage" -d "chat_id=$chat_id&text=$message")
-    
+    local bot_token=$(sudo cat /etc/vps_bot_token.conf)  # Read token from file
+    local chat_id=$(sudo cat /etc/vps_chat_id.conf)  # Read chat_id from file
+
+    echo "Sending Telegram message: $message"
+    response=$(curl -s -w "%{http_code}" -o /dev/null --connect-timeout 10 -X POST "https://api.telegram.org/bot$bot_token/sendMessage" -d "chat_id=$chat_id&text=$message")
+
     if [ "$response" -eq 200 ]; then
         echo "✅ Message sent successfully!"
     else
         echo "❌ Failed to send message. Response code: $response"
-        exit 1
+        exit 3
     fi
 }
 
-# Remove old bot token and chat ID files, and clear old cron jobs related to reboot
+# Function to remove old bot token, chat ID files, and clear old cron jobs related to reboot
 remove_old_files_and_jobs() {
+    echo "Cleaning up old files and cron jobs..."
+
     # Remove bot token and chat ID files if they exist
     for file in /etc/vps_bot_token.conf /etc/vps_chat_id.conf; do
         if [ -f "$file" ]; then
@@ -28,23 +32,28 @@ remove_old_files_and_jobs() {
 
     # Remove cron jobs related to reboot (if any)
     echo "Removing any existing cron jobs related to VPS reboot..."
-    (crontab -l 2>/dev/null | grep -v 'reboot') | sudo crontab -
+    (crontab -l 2>/dev/null | grep -v 'sudo reboot') | sudo crontab -
     echo "Removed any existing cron jobs related to VPS reboot."
 }
-
-# Call the function to clean up
-remove_old_files_and_jobs
 
 # Function to set the server's timezone
 set_timezone() {
     local timezone="$1"
     echo "Setting server timezone to $timezone..."
-    sudo timedatectl set-timezone "$timezone" || { echo "❌ Failed to set timezone"; exit 1; }
+
+    if timedatectl set-timezone "$timezone"; then
+        echo "✅ Timezone set to $timezone"
+    else
+        echo "❌ Failed to set timezone"
+        exit 4
+    fi
 }
 
 # Verify the timezone after reboot
 verify_timezone() {
     local expected_timezone="$1"
+    echo "Verifying timezone..."
+
     # Check current timezone
     current_timezone=$(timedatectl | grep "Time zone" | awk '{print $3}')
     if [[ "$current_timezone" != "$expected_timezone" ]]; then
@@ -62,20 +71,28 @@ set_cron_job() {
     local message="$2"
     local bot_token="$3"
     local chat_id="$4"
-    
+
+    echo "Scheduling reboot task in cron..."
+
     if [[ "$timezone" == "Asia/Colombo" ]]; then
         # Schedule for Sri Lanka time (3 AM Sri Lanka time)
-        (sudo crontab -l 2>/dev/null; echo "0 1 * * * TZ=Asia/Colombo /bin/bash -c 'bot_token=\$(cat /etc/vps_bot_token.conf); chat_id=\$(cat /etc/vps_chat_id.conf); message=\"$message\"; curl -s -X POST \"https://api.telegram.org/bot\$bot_token/sendMessage\" -d \"chat_id=\$chat_id&text=\$message\"; sudo reboot'") | sudo crontab -
+        (sudo crontab -l 2>/dev/null; echo "0 3 * * * TZ=Asia/Colombo /bin/bash -c 'bot_token=\$(sudo cat /etc/vps_bot_token.conf); chat_id=\$(sudo cat /etc/vps_chat_id.conf); message=\"$message\"; curl -s -X POST \"https://api.telegram.org/bot\$bot_token/sendMessage\" -d \"chat_id=\$chat_id&text=\$message\"; sudo reboot'") | sudo crontab -
         echo "✅ Reboot scheduled at 3 AM Sri Lanka time with Telegram notification."
     elif [[ "$timezone" == "Asia/Tehran" ]]; then
         # Schedule for Tehran time (3 AM Tehran time)
-        (sudo crontab -l 2>/dev/null; echo "0 1 * * * TZ=Asia/Tehran /bin/bash -c 'bot_token=\$(cat /etc/vps_bot_token.conf); chat_id=\$(cat /etc/vps_chat_id.conf); message=\"$message\"; curl -s -X POST \"https://api.telegram.org/bot\$bot_token/sendMessage\" -d \"chat_id=\$chat_id&text=\$message\"; sudo reboot'") | sudo crontab -
+        (sudo crontab -l 2>/dev/null; echo "0 3 * * * TZ=Asia/Tehran /bin/bash -c 'bot_token=\$(sudo cat /etc/vps_bot_token.conf); chat_id=\$(sudo cat /etc/vps_chat_id.conf); message=\"$message\"; curl -s -X POST \"https://api.telegram.org/bot\$bot_token/sendMessage\" -d \"chat_id=\$chat_id&text=\$message\"; sudo reboot'") | sudo crontab -
         echo "✅ Reboot scheduled at 3 AM Tehran time with Telegram notification."
     else
         echo "❌ Unsupported timezone selected."
-        exit 1
+        exit 5
     fi
 }
+
+# Main script execution starts here
+echo "Welcome to the VPS Reboot Scheduler!"
+
+# Clean up old files and cron jobs
+remove_old_files_and_jobs
 
 # Menu for selecting timezone
 echo "Choose your preferred timezone for reboot scheduling:"
@@ -90,7 +107,7 @@ elif [[ "$choice" == "2" ]]; then
     timezone="Asia/Tehran"
 else
     echo "❌ Invalid choice. Exiting."
-    exit 1
+    exit 6
 fi
 
 # Set the server's timezone
@@ -107,9 +124,17 @@ if [[ "$notify" == "y" ]]; then
     read -p "Enter your Telegram Bot Token: " bot_token
     read -p "Enter your Telegram Chat ID: " chat_id
 
-    # Save the bot token and chat ID to config files
+    # Validate inputs
+    if [[ -z "$bot_token" || -z "$chat_id" ]]; then
+        echo "❌ Invalid Bot Token or Chat ID. Exiting."
+        exit 7
+    fi
+
+    # Save the bot token and chat ID to config files with secure permissions
     echo "$bot_token" | sudo tee /etc/vps_bot_token.conf > /dev/null
     echo "$chat_id" | sudo tee /etc/vps_chat_id.conf > /dev/null
+    sudo chmod 600 /etc/vps_bot_token.conf /etc/vps_chat_id.conf
+    sudo chown root:root /etc/vps_bot_token.conf /etc/vps_chat_id.conf
 
     # Ask for a custom remark (optional)
     read -p "Enter a remark for the reboot notification (or leave blank for no remark): " remark
@@ -130,10 +155,10 @@ if [[ "$notify" == "y" ]]; then
 else
     # Schedule the cron job without Telegram notification
     if [[ "$timezone" == "Asia/Colombo" ]]; then
-        (sudo crontab -l 2>/dev/null; echo "0 1 * * * TZ=Asia/Colombo sudo reboot") | sudo crontab -
+        (sudo crontab -l 2>/dev/null; echo "0 3 * * * TZ=Asia/Colombo sudo reboot") | sudo crontab -
         echo "✅ Reboot scheduled at 3 AM Sri Lanka time without Telegram notification."
     elif [[ "$timezone" == "Asia/Tehran" ]]; then
-        (sudo crontab -l 2>/dev/null; echo "0 1 * * * TZ=Asia/Tehran sudo reboot") | sudo crontab -
+        (sudo crontab -l 2>/dev/null; echo "0 3 * * * TZ=Asia/Tehran sudo reboot") | sudo crontab -
         echo "✅ Reboot scheduled at 3 AM Tehran time without Telegram notification."
     fi
 fi
