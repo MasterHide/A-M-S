@@ -33,18 +33,29 @@ log_error() {
 # ======================
 show_main_banner() {
     printf "\033c"
-    echo -e "${GREEN}=========================================${NC}"
-    echo -e "${GREEN}=                                       =${NC}"
-    echo -e "${GREEN}=     🚀  POWER UP WITH A-M-S TOOL      =${NC}"
-    echo -e "${GREEN}=                                       =${NC}"
-    echo -e "${GREEN}=========================================${NC}"
+
+    # Print ASCII Banner
+    echo -e "${GREEN}
+─────▄▀▄─────▄▀▄
+─────▄█░░▀▀▀▀▀░░█▄
+─▄▄──█░░░░░░░░░░░█──▄▄
+█▄▄█─█░░▀░░┬░░▀░░█─█▄▄█
+${NC}"
+
+    # Main Menu Box
+    echo -e "${GREEN}┌───────────────────────────────────────┐${NC}"
+    echo -e "${GREEN}│     🚀  POWER UP WITH A-M-S TOOL      │${NC}"
+    echo -e "${GREEN}└───────────────────────────────────────┘${NC}"
     echo
-    echo -e " ${YELLOW}1.${NC} Install AMS Tools"
-    echo -e " ${YELLOW}2.${NC} Auto Restart X-UI Tool"
-    echo -e " ${YELLOW}3.${NC} Update Telegram Settings"
-    echo -e " ${YELLOW}4.${NC} Send Test Telegram Message"
-    echo -e " ${YELLOW}5.${NC} Uninstall AMS Tools"
-    echo -e " ${YELLOW}0.${NC} Exit"
+
+    echo -e " ${YELLOW}┌───────────────────────────────────┐${NC}"
+    echo -e " ${YELLOW}│${NC} 1. Install AMS Tools              ${YELLOW}│${NC}"
+    echo -e " ${YELLOW}│${NC} 2. Auto Restart X-UI Tool         ${YELLOW}│${NC}"
+    echo -e " ${YELLOW}│${NC} 3. Update Telegram Settings       ${YELLOW}│${NC}"
+    echo -e " ${YELLOW}│${NC} 4. Send Test Telegram Message     ${YELLOW}│${NC}"
+    echo -e " ${YELLOW}│${NC} 5. Uninstall AMS Tools            ${YELLOW}│${NC}"
+    echo -e " ${YELLOW}│${NC} 0. Exit                           ${YELLOW}│${NC}"
+    echo -e " ${YELLOW}└───────────────────────────────────┘${NC}"
     echo
 }
 
@@ -303,13 +314,28 @@ remove_restart_cron() {
 xui_submenu() {
     while true; do
         clear
-        echo -e "${GREEN}==============================${NC}"
-        echo -e "${GREEN}=     AMS - Auto X-UI Tool     =${NC}"
-        echo -e "${GREEN}==============================${NC}"
-        echo -e " ${YELLOW}1.${NC} Install / Reinstall Auto Restart"
-        echo -e " ${YELLOW}2.${NC} View Restart Logs"
-        echo -e " ${YELLOW}3.${NC} Uninstall Auto Restart"
-        echo -e " ${YELLOW}0.${NC} Back to Main Menu"
+
+        # ASCII Banner
+        echo -e "${GREEN}
+─────▄▀▄─────▄▀▄
+─────▄█░░▀▀▀▀▀░░█▄
+─▄▄──█░░░░░░░░░░░█──▄▄
+█▄▄█─█░░▀░░┬░░▀░░█─█▄▄█
+${NC}"
+
+        # Submenu Title Box
+        echo -e "${GREEN}┌──────────────────────────────┐${NC}"
+        echo -e "${GREEN}│     AMS - Auto X-UI Tool     │${NC}"
+        echo -e "${GREEN}└──────────────────────────────┘${NC}"
+        echo
+
+        # Menu Options Box
+        echo -e " ${YELLOW}┌───────────────────────────────────────────────────────┐${NC}"
+        echo -e " ${YELLOW}│${NC} 1. Install / Reinstall Auto Restart               ${YELLOW}│${NC}"
+        echo -e " ${YELLOW}│${NC} 2. View Restart Logs                              ${YELLOW}│${NC}"
+        echo -e " ${YELLOW}│${NC} 3. Uninstall Auto Restart                         ${YELLOW}│${NC}"
+        echo -e " ${YELLOW}│${NC} 0. Back to Main Menu                              ${YELLOW}│${NC}"
+        echo -e " ${YELLOW}└───────────────────────────────────────────────────────┘${NC}"
         echo
 
         read -r -p "Enter option [0-3]: " sub_choice
