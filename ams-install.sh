@@ -32,7 +32,7 @@ log_error() {
 #   MAIN BANNER
 # ======================
 show_main_banner() {
-    printf "\033c"  # More reliable than 'clear' in some terminals
+    printf "\033c"
     echo -e "${GREEN}=========================================${NC}"
     echo -e "${GREEN}=                                       =${NC}"
     echo -e "${GREEN}=     🚀  POWER UP WITH A-M-S TOOL      =${NC}"
@@ -42,6 +42,7 @@ show_main_banner() {
     echo -e " ${YELLOW}1.${NC} Install AMS Tools"
     echo -e " ${YELLOW}2.${NC} Auto Restart X-UI Tool"
     echo -e " ${YELLOW}3.${NC} Update Telegram Settings"
+    echo -e " ${YELLOW}4.${NC} Send Test Telegram Message"
     echo -e " ${YELLOW}0.${NC} Exit"
     echo
 }
@@ -148,6 +149,31 @@ EOL
 }
 
 # ======================
+#   SEND TEST MESSAGE
+# ======================
+send_telegram_test_message() {
+    if [ ! -f "$TELEGRAM_CONF" ]; then
+        log_error "Telegram not configured yet."
+        return 1
+    fi
+
+    source "$TELEGRAM_CONF"
+
+    TEXT="📬 AMS Tool - Test Message\n\nThis is a test alert from:\n\$SERVER_REMARK\nHostname: \$(hostname)\nIP Address: \$(hostname -I)\nTime: \$(date)"
+
+    curl -s -X POST "https://api.telegram.org/bot\$BOT_TOKEN/sendMessage" \\
+        -d chat_id="\$CHAT_ID" \\
+        -d text="\$TEXT" \\
+        -d parse_mode="markdown" > /dev/null 2>&1
+
+    if [ $? -eq 0 ]; then
+        log_success "Test message sent successfully!"
+    else
+        log_error "Failed to send test message. Check bot token/chat ID."
+    fi
+}
+
+# ======================
 #   SUBMENU FOR X-UI AUTO RESTART
 # ======================
 setup_restart_cron() {
@@ -201,6 +227,14 @@ EOL
     (crontab -l 2>/dev/null; echo "@reboot $SCRIPT_PATH-postinstall") | crontab -
 
     setup_reboot_alert_script
+
+    # Ask user to send test message
+    log_info "Would you like to send a test Telegram message now? (y/n)"
+    read -r -p "> " send_test
+
+    if [[ "$send_test" =~ ^[Yy]$ ]]; then
+        send_telegram_test_message
+    fi
 }
 
 check_logs() {
@@ -242,25 +276,46 @@ xui_submenu() {
         case $sub_choice in
             1)
                 setup_restart_cron
-                read -r -p "Press Enter to continue..." dummy
-                ;;
+                read -r -p "Press Enter to continue..." dummy ;;
             2)
                 check_logs
-                read -r -p "Press Enter to continue..." dummy
-                ;;
+                read -r -p "Press Enter to continue..." dummy ;;
             3)
                 remove_restart_cron
-                read -r -p "Press Enter to continue..." dummy
-                ;;
+                read -r -p "Press Enter to continue..." dummy ;;
             0)
-                break
-                ;;
+                break ;;
             *)
-                log_error "Invalid option. Try again."
-                sleep 1
-                ;;
+                log_error "Invalid option. Try again." ;;
         esac
     done
+}
+
+# ======================
+#   FINAL SETUP OPTIONS
+# ======================
+setup_global_alias() {
+    log_info "Would you like to add 'ams' command for easy access? (y/n)"
+    read -r -p "> " add_alias
+
+    if [[ "$add_alias" =~ ^[Yy]$ ]]; then
+        # Create directory if not exists
+        mkdir -p /root/ams/
+
+        # Copy current script to central location
+        cp "$0" /root/ams/ams-install.sh
+        chmod +x /root/ams/ams-install.sh
+
+        # Create symlink
+        if [ ! -f "/usr/local/bin/ams" ]; then
+            sudo ln -s /root/ams/ams-install.sh /usr/local/bin/ams
+            log_success "AMS global command created: type 'ams' to run anytime!"
+        else
+            log_warn "'ams' command already exists."
+        fi
+    else
+        log_info "Global command skipped. You can manually add it later."
+    fi
 }
 
 # ======================
@@ -269,28 +324,27 @@ xui_submenu() {
 main() {
     while true; do
         show_main_banner
-        read -r -p "Select an option [0-3]: " choice
+        read -r -p "Select an option [0-4]: " choice
 
         case $choice in
             1)
                 install_ams_tool
-                read -r -p "Press Enter to continue..." dummy
-                ;;
+                read -r -p "Press Enter to continue..." dummy ;;
             2)
-                xui_submenu
-                ;;
+                xui_submenu ;;
             3)
                 setup_telegram_alert
-                read -r -p "Press Enter to continue..." dummy
-                ;;
+                read -r -p "Press Enter to continue..." dummy ;;
+            4)
+                send_telegram_test_message
+                read -r -p "Press Enter to continue..." dummy ;;
             0)
+                setup_global_alias
                 log_success "Exiting AMS. Goodbye!"
-                exit 0
-                ;;
+                exit 0 ;;
             *)
                 log_error "Invalid option. Please try again."
-                sleep 1
-                ;;
+                sleep 1 ;;
         esac
     done
 }
