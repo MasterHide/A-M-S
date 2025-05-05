@@ -29,22 +29,10 @@ log_error() {
 }
 
 # ======================
-#   PATHS & CONFIG
-# ======================
-SCRIPT_PATH="$HOME/ams-scripts/restart-xui.sh"
-TELEGRAM_CONF="$HOME/ams-scripts/telegram.conf"
-REBOOT_ALERT_SCRIPT="$HOME/ams-scripts/reboot-alert.sh"
-
-# Load existing Telegram config if it exists
-if [ -f "$TELEGRAM_CONF" ]; then
-    source "$TELEGRAM_CONF"
-fi
-
-# ======================
 #   MAIN BANNER
 # ======================
 show_main_banner() {
-    clear
+    printf "\033c"  # More reliable than 'clear' in some terminals
     echo -e "${GREEN}=========================================${NC}"
     echo -e "${GREEN}=                                       =${NC}"
     echo -e "${GREEN}=     🚀  POWER UP WITH A-M-S TOOL      =${NC}"
@@ -83,6 +71,18 @@ install_ams_tool() {
 }
 
 # ======================
+#   PATHS & CONFIG
+# ======================
+SCRIPT_PATH="$HOME/ams-scripts/restart-xui.sh"
+TELEGRAM_CONF="$HOME/ams-scripts/telegram.conf"
+REBOOT_ALERT_SCRIPT="$HOME/ams-scripts/reboot-alert.sh"
+
+# Load existing Telegram config if it exists
+if [ -f "$TELEGRAM_CONF" ]; then
+    source "$TELEGRAM_CONF"
+fi
+
+# ======================
 #   CLEANUP OLD CRON
 # ======================
 cleanup_old_cron() {
@@ -97,13 +97,13 @@ cleanup_old_cron() {
 # ======================
 setup_telegram_alert() {
     log_info "Enter Telegram Bot Token:"
-    read -p "> " new_token
+    read -r new_token
 
     log_info "Enter Telegram Chat ID:"
-    read -p "> " new_chatid
+    read -r new_chatid
 
     log_info "Enter Server Remark (for identification):"
-    read -p "> " new_remark
+    read -r new_remark
 
     mkdir -p "$HOME/ams-scripts"
 
@@ -153,9 +153,9 @@ EOL
 setup_restart_cron() {
     log_info "Setting up Telegram Alerts..."
 
-    read -p "Enter Telegram Bot Token: " BOT_TOKEN
-    read -p "Enter Telegram Chat ID: " CHAT_ID
-    read -p "Enter Server Remark (e.g., MyMainServer): " SERVER_REMARK
+    read -r -p "Enter Telegram Bot Token: " BOT_TOKEN
+    read -r -p "Enter Telegram Chat ID: " CHAT_ID
+    read -r -p "Enter Server Remark (e.g., MyMainServer): " SERVER_REMARK
 
     mkdir -p "$HOME/ams-scripts"
 
@@ -237,22 +237,28 @@ xui_submenu() {
         echo -e " ${YELLOW}0.${NC} Back to Main Menu"
         echo
 
-        read -p "Enter option [0-3]: " sub_choice
+        read -r -p "Enter option [0-3]: " sub_choice
 
         case $sub_choice in
             1)
                 setup_restart_cron
-                read -p "Press Enter to continue..." ;;
+                read -r -p "Press Enter to continue..." dummy
+                ;;
             2)
                 check_logs
-                read -p "Press Enter to continue..." ;;
+                read -r -p "Press Enter to continue..." dummy
+                ;;
             3)
                 remove_restart_cron
-                read -p "Press Enter to continue..." ;;
+                read -r -p "Press Enter to continue..." dummy
+                ;;
             0)
-                break ;;
+                break
+                ;;
             *)
-                log_error "Invalid option. Try again." ;;
+                log_error "Invalid option. Try again."
+                sleep 1
+                ;;
         esac
     done
 }
@@ -263,22 +269,28 @@ xui_submenu() {
 main() {
     while true; do
         show_main_banner
-        read -p "Select an option [0-3]: " choice
+        read -r -p "Select an option [0-3]: " choice
 
         case $choice in
             1)
                 install_ams_tool
-                read -p "Press Enter to continue..." ;;
+                read -r -p "Press Enter to continue..." dummy
+                ;;
             2)
-                xui_submenu ;;
+                xui_submenu
+                ;;
             3)
                 setup_telegram_alert
-                read -p "Press Enter to continue..." ;;
+                read -r -p "Press Enter to continue..." dummy
+                ;;
             0)
                 log_success "Exiting AMS. Goodbye!"
-                exit 0 ;;
+                exit 0
+                ;;
             *)
-                log_error "Invalid option. Please try again." ;;
+                log_error "Invalid option. Please try again."
+                sleep 1
+                ;;
         esac
     done
 }
