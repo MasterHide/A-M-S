@@ -1,5 +1,4 @@
 #!/bin/bash
-
 # ======================
 #   COLOR DEFINITIONS
 # ======================
@@ -52,18 +51,14 @@ show_main_banner() {
 # ======================
 install_ams_tool() {
     log_info "Installing AMS tool..."
-
     cd /root || { log_error "Failed to enter /root directory"; return 1; }
-
     curl -O https://raw.githubusercontent.com/MasterHide/A-M-S/main/sr-system.sh
     if [ $? -ne 0 ]; then
         log_error "Failed to download sr-system.sh"
         return 1
     fi
-
     chmod +x sr-system.sh
     sudo ./sr-system.sh
-
     if [ $? -eq 0 ]; then
         log_success "AMS Tool installed successfully!"
     else
@@ -99,23 +94,17 @@ cleanup_old_cron() {
 setup_telegram_alert() {
     log_info "Enter Telegram Bot Token:"
     read -r new_token
-
     log_info "Enter Telegram Chat ID:"
     read -r new_chatid
-
     log_info "Enter Server Remark (for identification):"
     read -r new_remark
-
     mkdir -p "$HOME/ams-scripts"
-
     cat > "$TELEGRAM_CONF" << EOL
 BOT_TOKEN="$new_token"
 CHAT_ID="$new_chatid"
 SERVER_REMARK="$new_remark"
 EOL
-
     chmod 600 "$TELEGRAM_CONF"
-
     log_success "Telegram settings saved!"
     log_info "Server remark: '$new_remark'"
 }
@@ -133,17 +122,18 @@ if [ -z "\$BOT_TOKEN" ] || [ -z "\$CHAT_ID" ]; then
     exit 0
 fi
 
-TEXT="⚠️ Server Reboot Detected\n\nRemark: \$SERVER_REMARK\nHostname: \$(hostname)\nIP: \$(hostname -I)\nTime: \$(date)"
+TEXT="⚠️ Server Reboot Detected"
+TEXT+="\\n\\nRemark: \$SERVER_REMARK"
+TEXT+="\\nHostname: \$(hostname)"
+TEXT+="\\nIP: \$(hostname -I)"
+TEXT+="\\nTime: \$(date)"
 
 curl -s -X POST "https://api.telegram.org/bot\$BOT_TOKEN/sendMessage" \\
-    -d chat_id="\$CHAT_ID" \\
-    -d text="\$TEXT" \\
-    -d parse_mode="markdown" > /dev/null 2>&1
+    -d "chat_id=\$CHAT_ID" \\
+    -d "text=\$TEXT" \\
+    -d "parse_mode=markdown" > /dev/null 2>&1
 EOL
-
     chmod +x "$REBOOT_ALERT_SCRIPT"
-
-    # Add reboot alert cron
     (crontab -l 2>/dev/null | grep -v "@reboot $REBOOT_ALERT_SCRIPT") | crontab -
     (crontab -l 2>/dev/null; echo "@reboot $REBOOT_ALERT_SCRIPT") | crontab -
 }
@@ -159,12 +149,22 @@ send_telegram_test_message() {
 
     source "$TELEGRAM_CONF"
 
-    TEXT="📬 AMS Tool - Test Message\n\nThis is a test alert from:\n\$SERVER_REMARK\nHostname: \$(hostname)\nIP Address: \$(hostname -I)\nTime: \$(date)"
+    if [ -z "$BOT_TOKEN" ] || [ -z "$CHAT_ID" ]; then
+        log_error "Bot token or Chat ID is missing. Please configure first."
+        return 1
+    fi
 
-    curl -s -X POST "https://api.telegram.org/bot\$BOT_TOKEN/sendMessage" \\
-        -d chat_id="\$CHAT_ID" \\
-        -d text="\$TEXT" \\
-        -d parse_mode="markdown" > /dev/null 2>&1
+    TEXT="📬 AMS Tool - Test Message"
+    TEXT+="\n\nThis is a test alert from:"
+    TEXT+="\nServer: $SERVER_REMARK"
+    TEXT+="\nHostname: $(hostname)"
+    TEXT+="\nIP Address: $(hostname -I)"
+    TEXT+="\nTime: $(date)"
+
+    curl -s -X POST "https://api.telegram.org/bot$BOT_TOKEN/sendMessage" \
+        -d "chat_id=$CHAT_ID" \
+        -d "text=$TEXT" \
+        -d "parse_mode=markdown" > /dev/null 2>&1
 
     if [ $? -eq 0 ]; then
         log_success "Test message sent successfully!"
@@ -212,14 +212,18 @@ EOL
     log_info "x-ui will restart every hour (Tehran time)."
 
     # Post-install alert
-    TEXT="✅ Auto Restart Installed\n\nRemark: \$SERVER_REMARK\nHostname: \$(hostname)\nIP: \$(hostname -I)\nTime: \$(date)"
     cat > "$SCRIPT_PATH-postinstall" << EOL
 #!/bin/bash
 sleep 10
+TEXT="✅ Auto Restart Installed"
+TEXT+="\\n\\nRemark: $SERVER_REMARK"
+TEXT+="\\nHostname: \$(hostname)"
+TEXT+="\\nIP: \$(hostname -I)"
+TEXT+="\\nTime: \$(date)"
 curl -s -X POST "https://api.telegram.org/bot$BOT_TOKEN/sendMessage" \\
-    -d chat_id="$CHAT_ID" \\
-    -d text="$TEXT" \\
-    -d parse_mode="markdown" > /dev/null 2>&1
+    -d "chat_id=$CHAT_ID" \\
+    -d "text=\$TEXT" \\
+    -d "parse_mode=markdown" > /dev/null 2>&1
 EOL
 
     chmod +x "$SCRIPT_PATH-postinstall"
@@ -231,7 +235,6 @@ EOL
     # Ask user to send test message
     log_info "Would you like to send a test Telegram message now? (y/n)"
     read -r -p "> " send_test
-
     if [[ "$send_test" =~ ^[Yy]$ ]]; then
         send_telegram_test_message
     fi
@@ -259,38 +262,6 @@ remove_restart_cron() {
     log_success "Auto Restart removed successfully."
 }
 
-xui_submenu() {
-    while true; do
-        clear
-        echo -e "${GREEN}==============================${NC}"
-        echo -e "${GREEN}=     AMS - Auto X-UI Tool     =${NC}"
-        echo -e "${GREEN}==============================${NC}"
-        echo -e " ${YELLOW}1.${NC} Install / Reinstall Auto Restart"
-        echo -e " ${YELLOW}2.${NC} View Restart Logs"
-        echo -e " ${YELLOW}3.${NC} Uninstall Auto Restart"
-        echo -e " ${YELLOW}0.${NC} Back to Main Menu"
-        echo
-
-        read -r -p "Enter option [0-3]: " sub_choice
-
-        case $sub_choice in
-            1)
-                setup_restart_cron
-                read -r -p "Press Enter to continue..." dummy ;;
-            2)
-                check_logs
-                read -r -p "Press Enter to continue..." dummy ;;
-            3)
-                remove_restart_cron
-                read -r -p "Press Enter to continue..." dummy ;;
-            0)
-                break ;;
-            *)
-                log_error "Invalid option. Try again." ;;
-        esac
-    done
-}
-
 # ======================
 #   FINAL SETUP OPTIONS
 # ======================
@@ -299,22 +270,18 @@ setup_global_alias() {
     read -r -p "> " add_alias
 
     if [[ "$add_alias" =~ ^[Yy]$ ]]; then
-        # Create directory if not exists
         mkdir -p /root/ams/
-
-        # Copy current script to central location
         cp "$0" /root/ams/ams-install.sh
         chmod +x /root/ams/ams-install.sh
 
-        # Create symlink
         if [ ! -f "/usr/local/bin/ams" ]; then
             sudo ln -s /root/ams/ams-install.sh /usr/local/bin/ams
-            log_success "AMS global command created: type 'ams' to run anytime!"
+            log_success "AMS global command created: type 'ams' anytime!"
         else
             log_warn "'ams' command already exists."
         fi
     else
-        log_info "Global command skipped. You can manually add it later."
+        log_info "Global command skipped. You can manually set it later."
     fi
 }
 
