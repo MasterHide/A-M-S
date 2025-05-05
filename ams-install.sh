@@ -84,27 +84,32 @@ install_ams_tool() {
 # ======================
 uninstall_ams_tool() {
     log_info "Downloading and running AMS uninstaller..."
-    
+
     cd /root || { log_error "Failed to enter /root directory"; return 1; }
 
     # Download rm.sh
     curl -O https://raw.githubusercontent.com/MasterHide/A-M-S/main/rm.sh
     if [ $? -ne 0 ]; then
         log_error "Failed to download rm.sh"
-        return 1
-    fi
-
-    # Make it executable
-    chmod +x rm.sh
-
-    # Run it
-    sudo ./rm.sh
-
-    if [ $? -eq 0 ]; then
-        log_success "AMS Tool uninstalled successfully!"
     else
-        log_error "Uninstaller script failed."
+        chmod +x rm.sh
+        sudo ./rm.sh
+        log_success "External uninstaller script executed."
     fi
+
+    # Remove AMS scripts folder
+    if [ -d "$HOME/ams-scripts" ]; then
+        rm -rf "$HOME/ams-scripts"
+        log_success "AMS configuration files removed."
+    fi
+
+    # Remove global command alias
+    if [ -f "/usr/local/bin/ams" ]; then
+        sudo rm -f /usr/local/bin/ams
+        log_success "Global 'ams' command removed."
+    fi
+
+    log_info "AMS has been fully uninstalled."
 }
 
 # ======================
@@ -240,8 +245,19 @@ EOL
     cat > "$SCRIPT_PATH" << EOL
 #!/bin/bash
 export TZ='Asia/Tehran'
+source "$TELEGRAM_CONF" 2>/dev/null
+
 x-ui restart
 echo "x-ui restarted at \$(date)" >> /var/log/x-ui-restart.log
+
+# Send Telegram alert if configured
+if [ -n "\$BOT_TOKEN" ] && [ -n "\$CHAT_ID" ]; then
+    TEXT="🔄 x-ui auto-restarted\n\nRemark: \$SERVER_REMARK\nHostname: \$(hostname)\nIP: \$(hostname -I)\nTime: \$(date)"
+    curl -s -X POST "https://api.telegram.org/bot\$BOT_TOKEN/sendMessage" \\
+        -d chat_id="\$CHAT_ID" \\
+        -d text="\$TEXT" \\
+        -d parse_mode=markdown > /dev/null 2>&1
+fi
 EOL
 
     chmod +x "$SCRIPT_PATH"
