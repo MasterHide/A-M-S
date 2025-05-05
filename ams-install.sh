@@ -331,10 +331,10 @@ ${NC}"
 
         # Menu Options Box
         echo -e " ${YELLOW}┌───────────────────────────────────────────────────────┐${NC}"
-        echo -e " ${YELLOW}│${NC} 1. Install / Reinstall Auto Restart               ${YELLOW}│${NC}"
-        echo -e " ${YELLOW}│${NC} 2. View Restart Logs                              ${YELLOW}│${NC}"
-        echo -e " ${YELLOW}│${NC} 3. Uninstall Auto Restart                         ${YELLOW}│${NC}"
-        echo -e " ${YELLOW}│${NC} 0. Back to Main Menu                              ${YELLOW}│${NC}"
+        echo -e " ${YELLOW}│${NC} 1. Install / Reinstall Auto Restart                  ${YELLOW}│${NC}"
+        echo -e " ${YELLOW}│${NC} 2. View Restart Logs                                 ${YELLOW}│${NC}"
+        echo -e " ${YELLOW}│${NC} 3. Uninstall Auto Restart                            ${YELLOW}│${NC}"
+        echo -e " ${YELLOW}│${NC} 0. Back to Main Menu                                 ${YELLOW}│${NC}"
         echo -e " ${YELLOW}└───────────────────────────────────────────────────────┘${NC}"
         echo
 
