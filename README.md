@@ -6,7 +6,7 @@ A script to automate system management tasks, including reboot scheduling and se
 Run the following command to install
 
 ```bash
-curl -O https://raw.githubusercontent.com/MasterHide/A-M-S/main/sr-system.sh && chmod +x sr-system.sh && sudo ./sr-system.sh
+curl -O https://raw.githubusercontent.com/MasterHide/A-M-S/main/ams-install.sh && chmod +x ams-install.sh && ./ams-install.sh
 ```
 ## Run the following command to Uninstall
 
