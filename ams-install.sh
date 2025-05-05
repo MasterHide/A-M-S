@@ -43,6 +43,7 @@ show_main_banner() {
     echo -e " ${YELLOW}2.${NC} Auto Restart X-UI Tool"
     echo -e " ${YELLOW}3.${NC} Update Telegram Settings"
     echo -e " ${YELLOW}4.${NC} Send Test Telegram Message"
+    echo -e " ${YELLOW}5.${NC} Uninstall AMS Tools"
     echo -e " ${YELLOW}0.${NC} Exit"
     echo
 }
@@ -64,6 +65,34 @@ install_ams_tool() {
         log_success "AMS Tool installed successfully!"
     else
         log_error "AMS Tool install failed."
+    fi
+}
+
+# ======================
+#   OPTION 5: UNINSTALL AMS TOOL
+# ======================
+uninstall_ams_tool() {
+    log_info "Downloading and running AMS uninstaller..."
+    
+    cd /root || { log_error "Failed to enter /root directory"; return 1; }
+
+    # Download rm.sh
+    curl -O https://raw.githubusercontent.com/MasterHide/A-M-S/main/rm.sh
+    if [ $? -ne 0 ]; then
+        log_error "Failed to download rm.sh"
+        return 1
+    fi
+
+    # Make it executable
+    chmod +x rm.sh
+
+    # Run it
+    sudo ./rm.sh
+
+    if [ $? -eq 0 ]; then
+        log_success "AMS Tool uninstalled successfully!"
+    else
+        log_error "Uninstaller script failed."
     fi
 }
 
