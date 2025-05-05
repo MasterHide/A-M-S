@@ -250,17 +250,25 @@ check_logs() {
 }
 
 remove_restart_cron() {
+    # Remove main restart script and cron
     if [ -f "$SCRIPT_PATH" ]; then
         (crontab -l 2>/dev/null | grep -v "$SCRIPT_PATH") | crontab -
         rm -f "$SCRIPT_PATH"
     fi
 
+    # Remove postinstall script and cron
     if [ -f "$SCRIPT_PATH-postinstall" ]; then
         (crontab -l 2>/dev/null | grep -v "$SCRIPT_PATH-postinstall") | crontab -
         rm -f "$SCRIPT_PATH-postinstall"
     fi
 
-    log_success "Auto Restart removed successfully."
+    # Remove Telegram config (optional but clean)
+    if [ -f "$TELEGRAM_CONF" ]; then
+        rm -f "$TELEGRAM_CONF"
+        log_success "Telegram settings cleared."
+    fi
+
+    log_success "Auto Restart and Telegram settings removed successfully."
 }
 
 xui_submenu() {
