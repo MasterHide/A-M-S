@@ -1,5 +1,4 @@
 #!/bin/bash
-
 # ======================
 #   COLOR DEFINITIONS
 # ======================
@@ -33,7 +32,6 @@ log_error() {
 # ======================
 show_main_banner() {
     printf "\033c"
-
     # Print ASCII Banner
     echo -e "${GREEN}
 ─────▄▀▄─────▄▀▄
@@ -41,13 +39,11 @@ show_main_banner() {
 ─▄▄──█░░░░░░░░░░░█──▄▄
 █▄▄█─█░░▀░░┬░░▀░░█─█▄▄█
 ${NC}"
-
     # Main Menu Box
     echo -e "${GREEN}┌───────────────────────────────────────┐${NC}"
     echo -e "${GREEN}│     🚀  POWER UP WITH A-M-S TOOL      │${NC}"
     echo -e "${GREEN}└───────────────────────────────────────┘${NC}"
     echo
-
     echo -e " ${YELLOW}┌───────────────────────────────────┐${NC}"
     echo -e " ${YELLOW}│${NC} 1. Install AMS Tools              ${YELLOW}│${NC}"
     echo -e " ${YELLOW}│${NC} 2. Auto Restart X-UI Tool         ${YELLOW}│${NC}"
@@ -87,7 +83,6 @@ uninstall_ams_tool() {
 
     cd /root || { log_error "Failed to enter /root directory"; return 1; }
 
-    # Download rm.sh
     curl -O https://raw.githubusercontent.com/MasterHide/A-M-S/main/rm.sh
     if [ $? -ne 0 ]; then
         log_error "Failed to download rm.sh"
@@ -97,7 +92,7 @@ uninstall_ams_tool() {
         log_success "External uninstaller script executed."
     fi
 
-    # Remove AMS scripts folder
+    # Remove AMS config folder
     if [ -d "$HOME/ams-scripts" ]; then
         rm -rf "$HOME/ams-scripts"
         log_success "AMS configuration files removed."
@@ -161,25 +156,23 @@ EOL
 setup_reboot_alert_script() {
     cat > "$REBOOT_ALERT_SCRIPT" << EOL
 #!/bin/bash
-
 source "$TELEGRAM_CONF" 2>/dev/null
-
 if [ -z "\$BOT_TOKEN" ] || [ -z "\$CHAT_ID" ]; then
     exit 0
 fi
-
-TEXT="⚠️ Server Reboot Detected"
-TEXT+="\\n\\nRemark: \$SERVER_REMARK"
-TEXT+="\\nHostname: \$(hostname)"
-TEXT+="\\nIP: \$(hostname -I)"
-TEXT+="\\nTime: \$(date)"
-
+TEXT="⚠️ Server Reboot Detected
+Remark: \$SERVER_REMARK
+Hostname: \$(hostname)
+IP: \$(hostname -I)
+Time: \$(date)"
 curl -s -X POST "https://api.telegram.org/bot\$BOT_TOKEN/sendMessage" \\
-    -d "chat_id=\$CHAT_ID" \\
-    -d "text=\$TEXT" \\
-    -d "parse_mode=markdown" > /dev/null 2>&1
+    -d chat_id="\$CHAT_ID" \\
+    -d text="\$TEXT" \\
+    -d parse_mode=markdown > /dev/null 2>&1
 EOL
+
     chmod +x "$REBOOT_ALERT_SCRIPT"
+
     (crontab -l 2>/dev/null | grep -v "@reboot $REBOOT_ALERT_SCRIPT") | crontab -
     (crontab -l 2>/dev/null; echo "@reboot $REBOOT_ALERT_SCRIPT") | crontab -
 }
@@ -200,17 +193,17 @@ send_telegram_test_message() {
         return 1
     fi
 
-    TEXT="📬 AMS Tool - Test Message"
-    TEXT+="\n\nThis is a test alert from:"
-    TEXT+="\nServer: $SERVER_REMARK"
-    TEXT+="\nHostname: $(hostname)"
-    TEXT+="\nIP Address: $(hostname -I)"
-    TEXT+="\nTime: $(date)"
+    TEXT="📬 AMS Tool - Test Message
+This is a test alert from:
+\$SERVER_REMARK
+Hostname: \$(hostname)
+IP Address: \$(hostname -I)
+Time: \$(date)"
 
-    curl -s -X POST "https://api.telegram.org/bot$BOT_TOKEN/sendMessage" \
-        -d "chat_id=$CHAT_ID" \
-        -d "text=$TEXT" \
-        -d "parse_mode=markdown" > /dev/null 2>&1
+    curl -s -X POST "https://api.telegram.org/bot\$BOT_TOKEN/sendMessage" \\
+        -d chat_id="\$CHAT_ID" \\
+        -d text="\$TEXT" \\
+        -d parse_mode="markdown" > /dev/null 2>&1
 
     if [ $? -eq 0 ]; then
         log_success "Test message sent successfully!"
@@ -245,8 +238,11 @@ EOL
     cat > "$SCRIPT_PATH" << EOL
 #!/bin/bash
 export TZ='Asia/Tehran'
+
+# Load Telegram settings
 source "$TELEGRAM_CONF" 2>/dev/null
 
+# Restart x-ui and log
 x-ui restart
 echo "x-ui restarted at \$(date)" >> /var/log/x-ui-restart.log
 
@@ -254,8 +250,8 @@ echo "x-ui restarted at \$(date)" >> /var/log/x-ui-restart.log
 if [ -n "\$BOT_TOKEN" ] && [ -n "\$CHAT_ID" ]; then
     TEXT="🔄 x-ui auto-restarted\n\nRemark: \$SERVER_REMARK\nHostname: \$(hostname)\nIP: \$(hostname -I)\nTime: \$(date)"
     curl -s -X POST "https://api.telegram.org/bot\$BOT_TOKEN/sendMessage" \\
-        -d chat_id="\$CHAT_ID" \\
-        -d text="\$TEXT" \\
+        -d "chat_id=\$CHAT_ID" \\
+        -d "text=\$TEXT" \\
         -d parse_mode=markdown > /dev/null 2>&1
 fi
 EOL
@@ -272,15 +268,15 @@ EOL
     cat > "$SCRIPT_PATH-postinstall" << EOL
 #!/bin/bash
 sleep 10
-TEXT="✅ Auto Restart Installed"
-TEXT+="\\n\\nRemark: \$SERVER_REMARK"
-TEXT+="\\nHostname: \$(hostname)"
-TEXT+="\\nIP: \$(hostname -I)"
-TEXT+="\\nTime: \$(date)"
+TEXT="✅ Auto Restart Installed
+Remark: \$SERVER_REMARK
+Hostname: \$(hostname)
+IP: \$(hostname -I)
+Time: \$(date)"
 curl -s -X POST "https://api.telegram.org/bot$BOT_TOKEN/sendMessage" \\
-    -d "chat_id=$CHAT_ID" \\
-    -d "text=\$TEXT" \\
-    -d "parse_mode=markdown" > /dev/null 2>&1
+    -d chat_id="$CHAT_ID" \\
+    -d text="$TEXT" \\
+    -d parse_mode=markdown > /dev/null 2>&1
 EOL
 
     chmod +x "$SCRIPT_PATH-postinstall"
@@ -306,31 +302,22 @@ check_logs() {
 }
 
 remove_restart_cron() {
-    # Remove main restart script and cron
     if [ -f "$SCRIPT_PATH" ]; then
         (crontab -l 2>/dev/null | grep -v "$SCRIPT_PATH") | crontab -
         rm -f "$SCRIPT_PATH"
     fi
 
-    # Remove postinstall script and cron
     if [ -f "$SCRIPT_PATH-postinstall" ]; then
         (crontab -l 2>/dev/null | grep -v "$SCRIPT_PATH-postinstall") | crontab -
         rm -f "$SCRIPT_PATH-postinstall"
     fi
 
-    # Remove Telegram config (optional but clean)
-    if [ -f "$TELEGRAM_CONF" ]; then
-        rm -f "$TELEGRAM_CONF"
-        log_success "Telegram settings cleared."
-    fi
-
-    log_success "Auto Restart and Telegram settings removed successfully."
+    log_success "Auto Restart removed successfully."
 }
 
 xui_submenu() {
     while true; do
         clear
-
         # ASCII Banner
         echo -e "${GREEN}
 ─────▄▀▄─────▄▀▄
@@ -403,7 +390,7 @@ setup_global_alias() {
 main() {
     while true; do
         show_main_banner
-        read -r -p "Select an option [0-4]: " choice
+        read -r -p "Select an option [0-5]: " choice
 
         case $choice in
             1)
@@ -416,6 +403,9 @@ main() {
                 read -r -p "Press Enter to continue..." dummy ;;
             4)
                 send_telegram_test_message
+                read -r -p "Press Enter to continue..." dummy ;;
+            5)
+                uninstall_ams_tool
                 read -r -p "Press Enter to continue..." dummy ;;
             0)
                 setup_global_alias
