@@ -54,7 +54,7 @@ ${NC}"
     echo -e " ${YELLOW}│${NC} 3. Update Telegram Settings       ${YELLOW}│${NC}"
     echo -e " ${YELLOW}│${NC} 4. Send Test Telegram Message     ${YELLOW}│${NC}"
     echo -e " ${YELLOW}│${NC} 5. Uninstall AMS Tools            ${YELLOW}│${NC}"
-    echo -e " ${YELLOW}│${NC} 0. Exit                           ${YELLOW}│${NC}"
+    echo -e " ${YELLOW}│${NC} 0. Exit & Create Menu Cmd         ${YELLOW}│${NC}"
     echo -e " ${YELLOW}└───────────────────────────────────┘${NC}"
     echo
 }
