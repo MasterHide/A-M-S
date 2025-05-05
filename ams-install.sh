@@ -1,4 +1,5 @@
 #!/bin/bash
+
 # ======================
 #   COLOR DEFINITIONS
 # ======================
@@ -216,7 +217,7 @@ EOL
 #!/bin/bash
 sleep 10
 TEXT="✅ Auto Restart Installed"
-TEXT+="\\n\\nRemark: $SERVER_REMARK"
+TEXT+="\\n\\nRemark: \$SERVER_REMARK"
 TEXT+="\\nHostname: \$(hostname)"
 TEXT+="\\nIP: \$(hostname -I)"
 TEXT+="\\nTime: \$(date)"
@@ -260,6 +261,38 @@ remove_restart_cron() {
     fi
 
     log_success "Auto Restart removed successfully."
+}
+
+xui_submenu() {
+    while true; do
+        clear
+        echo -e "${GREEN}==============================${NC}"
+        echo -e "${GREEN}=     AMS - Auto X-UI Tool     =${NC}"
+        echo -e "${GREEN}==============================${NC}"
+        echo -e " ${YELLOW}1.${NC} Install / Reinstall Auto Restart"
+        echo -e " ${YELLOW}2.${NC} View Restart Logs"
+        echo -e " ${YELLOW}3.${NC} Uninstall Auto Restart"
+        echo -e " ${YELLOW}0.${NC} Back to Main Menu"
+        echo
+
+        read -r -p "Enter option [0-3]: " sub_choice
+
+        case $sub_choice in
+            1)
+                setup_restart_cron
+                read -r -p "Press Enter to continue..." dummy ;;
+            2)
+                check_logs
+                read -r -p "Press Enter to continue..." dummy ;;
+            3)
+                remove_restart_cron
+                read -r -p "Press Enter to continue..." dummy ;;
+            0)
+                break ;;
+            *)
+                log_error "Invalid option. Try again." ;;
+        esac
+    done
 }
 
 # ======================
