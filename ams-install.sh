@@ -189,21 +189,21 @@ send_telegram_test_message() {
     source "$TELEGRAM_CONF"
 
     if [ -z "$BOT_TOKEN" ] || [ -z "$CHAT_ID" ]; then
-        log_error "Bot token or Chat ID is missing. Please configure first."
+        log_error "Bot token or Chat ID missing. Please configure first."
         return 1
     fi
 
-    TEXT="📬 AMS Tool - Test Message
-This is a test alert from:
-\$SERVER_REMARK
-Hostname: \$(hostname)
-IP Address: \$(hostname -I)
-Time: \$(date)"
+    TEXT="📬 AMS Tool - Test Message"
+    TEXT+="\n\nThis is a test alert from:"
+    TEXT+="\nServer: $SERVER_REMARK"
+    TEXT+="\nHostname: $(hostname)"
+    TEXT+="\nIP Address: $(hostname -I)"
+    TEXT+="\nTime: $(date)"
 
-    curl -s -X POST "https://api.telegram.org/bot\$BOT_TOKEN/sendMessage" \\
-        -d chat_id="\$CHAT_ID" \\
-        -d text="\$TEXT" \\
-        -d parse_mode="markdown" > /dev/null 2>&1
+    curl -s -X POST "https://api.telegram.org/bot$BOT_TOKEN/sendMessage" \
+        -d "chat_id=$CHAT_ID" \
+        -d "text=$TEXT" \
+        -d "parse_mode=markdown" > /dev/null 2>&1
 
     if [ $? -eq 0 ]; then
         log_success "Test message sent successfully!"
@@ -248,7 +248,12 @@ echo "x-ui restarted at \$(date)" >> /var/log/x-ui-restart.log
 
 # Send Telegram alert if configured
 if [ -n "\$BOT_TOKEN" ] && [ -n "\$CHAT_ID" ]; then
-    TEXT="🔄 x-ui auto-restarted\n\nRemark: \$SERVER_REMARK\nHostname: \$(hostname)\nIP: \$(hostname -I)\nTime: \$(date)"
+    TEXT="🔄 x-ui auto-restarted"
+    TEXT+="\\n\\nRemark: \$SERVER_REMARK"
+    TEXT+="\\nHostname: \$(hostname)"
+    TEXT+="\\nIP: \$(hostname -I)"
+    TEXT+="\\nTime: \$(date)"
+
     curl -s -X POST "https://api.telegram.org/bot\$BOT_TOKEN/sendMessage" \\
         -d "chat_id=\$CHAT_ID" \\
         -d "text=\$TEXT" \\
@@ -268,11 +273,11 @@ EOL
     cat > "$SCRIPT_PATH-postinstall" << EOL
 #!/bin/bash
 sleep 10
-TEXT="✅ Auto Restart Installed
-Remark: \$SERVER_REMARK
-Hostname: \$(hostname)
-IP: \$(hostname -I)
-Time: \$(date)"
+TEXT="✅ Auto Restart Installed"
+TEXT+="\\n\\nRemark: \$SERVER_REMARK"
+TEXT+="\\nHostname: \$(hostname)"
+TEXT+="\\nIP: \$(hostname -I)"
+TEXT+="\\nTime: \$(date)"
 curl -s -X POST "https://api.telegram.org/bot$BOT_TOKEN/sendMessage" \\
     -d chat_id="$CHAT_ID" \\
     -d text="$TEXT" \\
