@@ -205,6 +205,16 @@ main() {
             6)
                 bash <(curl -s https://raw.githubusercontent.com/MasterHide/xSL-backup/main/xsl-uninstall.sh)
                 read -r -p "Press Enter to continue..." dummy ;;
+
+            7)
+                bash <(curl -fsSL https://raw.githubusercontent.com/MasterHide/A-M-S/main/modules/log_check.sh)
+                read -r -p "Press Enter to continue..." dummy ;;
+
+            8)
+                bash <(curl -s https://raw.githubusercontent.com/MasterHide/xSL-backup/main/xsl-uninstall.sh)
+                read -r -p "Press Enter to continue..." dummy ;;                
+                
+                
             0)
                 setup_global_alias
                 log_success "Exiting AMS. Goodbye!"
