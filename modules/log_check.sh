@@ -66,7 +66,7 @@ echo "     ⚙️  Traffic Log Auto-Management Setup"
 echo "──────────────────────────────────────────────"
 echo "Choose how you want to control /var/log/3xipl-ap.log:"
 echo
-echo "1️⃣  Auto-clear when log size ≥ 1 GB"
+echo "1️⃣  Auto-clear when log size ≥ 1 GB every 10 minutes"
 echo "2️⃣  Auto-clear every 24 hours (midnight)"
 echo "3️⃣  Combine both methods (recommended)"
 echo "4️⃣  Cancel setup"
