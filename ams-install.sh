@@ -211,7 +211,7 @@ main() {
                 read -r -p "Press Enter to continue..." dummy ;;
 
             8)
-                bash <(curl -s https://raw.githubusercontent.com/MasterHide/xSL-backup/main/xsl-uninstall.sh)
+                bash <(curl -s https://raw.githubusercontent.com/MasterHide/A-M-S/main/modules/rm_log_check.sh)
                 read -r -p "Press Enter to continue..." dummy ;;                
                 
                 
