@@ -43,7 +43,7 @@ ${NC}"
     echo -e "${GREEN}└───────────────────────────────────────┘${NC}"
     echo
     echo -e " ${YELLOW}┌───────────────────────────────────┐${NC}"
-    echo -e " ${YELLOW}│${NC} 1. Install AMS Tools              ${YELLOW}│${NC}"
+    echo -e " ${YELLOW}│${NC} 1. Install AMS Reboot Tools       ${YELLOW}│${NC}"
     echo -e " ${YELLOW}│${NC} 2. Auto (db) Backup X-UI Tool     ${YELLOW}│${NC}"
     echo -e " ${YELLOW}│${NC} 3. Update Telegram Settings       ${YELLOW}│${NC}"
     echo -e " ${YELLOW}│${NC} 4. Send Test Telegram Message     ${YELLOW}│${NC}"
