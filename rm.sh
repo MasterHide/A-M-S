@@ -1,5 +1,10 @@
 #!/bin/bash
 
+# ======================================
+# Safe Cleanup Script (auto search mode)
+# Version: 2.0 - 2025-10
+# ======================================
+
 # Function to remove reboot-related cron jobs
 remove_cron_jobs() {
     echo "Removing any existing cron jobs related to reboot..."
@@ -11,11 +16,11 @@ remove_cron_jobs() {
     fi
 }
 
-# Function to remove specific files
+# Function to search and remove matching files
 remove_files() {
-    echo "Cleaning up old files..."
+    echo "Cleaning up old and matching files..."
 
-    # List of files to remove
+    # Fixed known file paths
     files_to_remove=(
         "/root/sr-system.sh"
         "/home/ubuntu/sr-system.sh"
@@ -27,7 +32,7 @@ remove_files() {
         "/opt/hiddify-manager/rm.sh"
     )
 
-    # Loop through the list and remove each file if it exists
+    # Remove fixed files
     for file in "${files_to_remove[@]}"; do
         if [ -f "$file" ]; then
             if sudo rm -f "$file"; then
@@ -40,16 +45,23 @@ remove_files() {
         fi
     done
 
+    # Auto-detect and remove all scripts like ams-install.sh, rm.sh, sr-system.sh, etc.
+    echo "🔍 Scanning for leftover uninstall or setup scripts..."
+    find /root /home /opt /etc /usr/local -type f \
+        \( -name "ams-install.sh" -o -name "sr-system.sh" -o -name "rm.sh" -o -name "cleanup.sh" -o -name "remove.sh" \) \
+        2>/dev/null | while read -r file; do
+            if sudo rm -f "$file"; then
+                echo "✅ Auto-removed: $file"
+            else
+                echo "❌ Could not remove: $file"
+            fi
+        done
+
     echo "Cleanup complete."
 }
 
-# Main script execution starts here
+# Main script
 echo "Starting cleanup process..."
-
-# Step 1: Remove reboot-related cron jobs
 remove_cron_jobs
-
-# Step 2: Remove old files
 remove_files
-
 echo "✅ All cleanup tasks completed."
