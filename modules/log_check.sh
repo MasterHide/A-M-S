@@ -1,6 +1,6 @@
 #!/bin/bash
 # Traffic Log Auto Management Script
-# Safe, tested version - prevents disk flooding while preserving torrent blocker logs
+# Safe, tested version with automatic cleanup before reinstall
 
 LOGFILE="/var/log/3xipl-ap.log"
 LOGROTATE="/var/log/3xipl-ap-rotate.log"
@@ -13,9 +13,38 @@ if [ ! -f "$LOGFILE" ]; then
   exit 1
 fi
 
-# Helper function to write messages
+# ✅ Ensure correct permissions
+if [ ! -w "$LOGFILE" ]; then
+  echo "🔧 Adjusting permissions for $LOGFILE..."
+  sudo chown root:adm "$LOGFILE" 2>/dev/null || true
+  sudo chmod 664 "$LOGFILE" 2>/dev/null || true
+fi
+
+if [ ! -w "$LOGROTATE" ]; then
+  sudo touch "$LOGROTATE"
+  sudo chown root:adm "$LOGROTATE" 2>/dev/null || true
+  sudo chmod 664 "$LOGROTATE" 2>/dev/null || true
+fi
+
+# Helper for logging actions
 log_action() {
   echo "$(date '+%F %T') - $1" | tee -a "$LOGROTATE"
+}
+
+# 🧹 Cleanup old setup before re-install
+cleanup_old() {
+  log_action "🧹 Cleaning old log rotation setup..."
+  # Remove old scripts
+  sudo rm -f /usr/local/bin/clear_3xipl_log_size.sh /usr/local/bin/clear_3xipl_log_daily.sh
+
+  # Remove old cron entries
+  local tmpfile
+  tmpfile=$(mktemp)
+  sudo crontab -l 2>/dev/null | grep -v 'clear_3xipl_log' > "$tmpfile"
+  sudo crontab "$tmpfile"
+  rm -f "$tmpfile"
+
+  log_action "✅ Old setup removed successfully."
 }
 
 # Create the size-based cleaner
@@ -53,13 +82,22 @@ chmod +x /usr/local/bin/clear_3xipl_log_daily.sh
 log_action "✅ Created daily cleaner script."
 }
 
-# Setup cron jobs
+# ✅ Improved Cron setup (prevents duplicates)
 setup_cron() {
-  (sudo crontab -l 2>/dev/null | grep -v 'clear_3xipl_log' ; echo "$1") | sudo crontab -
-  log_action "✅ Added cron job: $1"
+  local job="$1"
+  local tmpfile
+  tmpfile=$(mktemp)
+  sudo crontab -l 2>/dev/null | grep -v -F "$job" | grep -v 'clear_3xipl_log' > "$tmpfile"
+  echo "$job" >> "$tmpfile"
+  sudo crontab "$tmpfile"
+  rm -f "$tmpfile"
+  log_action "✅ Added cron job: $job"
 }
 
-# Main Menu
+# Start clean
+cleanup_old
+
+# Menu
 clear
 echo "──────────────────────────────────────────────"
 echo "     ⚙️  Traffic Log Auto-Management Setup"
@@ -100,6 +138,6 @@ esac
 
 echo
 echo "──────────────────────────────────────────────"
-echo "✅ Setup complete! Logs will now be managed safely."
+echo "✅ Setup complete! Old setup removed, new one installed safely."
 echo "Actions are logged in: $LOGROTATE"
 echo "──────────────────────────────────────────────"
