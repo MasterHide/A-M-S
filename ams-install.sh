@@ -39,19 +39,7 @@ show_main_banner() {
     CYAN='\033[1;36m'
     MAGENTA='\033[1;35m'
     NC='\033[0m'
-
-    # ─── ANIMATED PRINTER ───────────────────────────
-    type_line() {
-        text="$1"
-        color="$2"
-        speed=${3:-0.001}
-        echo -ne "$color"
-        for ((i = 0; i < ${#text}; i++)); do
-            printf "%s" "${text:$i:1}"
-            sleep $speed
-        done
-        echo -e "${NC}"
-    }
+  
 
     # ─── LOGO ───────────────────────────────────────
     printf "\033c"
@@ -70,24 +58,21 @@ show_main_banner() {
     echo
     sleep 0.1
 
-    # ─── MENU ───────────────────────────────────────
+echo
     echo -e " ${YELLOW}┌───────────────────────────────────┐${NC}"
-    sleep 0.05
-    type_line " ${YELLOW}│${NC} ${CYAN}1.${NC} Install AMS Reboot Tools        ${YELLOW}│${NC}" "$YELLOW" 0.0008
-    type_line " ${YELLOW}│${NC} ${CYAN}2.${NC} Auto (db) Backup X-UI Tool      ${YELLOW}│${NC}" "$YELLOW" 0.0008
-    type_line " ${YELLOW}│${NC} ${CYAN}3.${NC} Update Telegram Settings        ${YELLOW}│${NC}" "$YELLOW" 0.0008
-    type_line " ${YELLOW}│${NC} ${CYAN}4.${NC} Send Test Telegram Message      ${YELLOW}│${NC}" "$YELLOW" 0.0008
-    type_line " ${YELLOW}│${NC} ${CYAN}5.${NC} Uninstall AMS Tools             ${YELLOW}│${NC}" "$YELLOW" 0.0008
-    type_line " ${YELLOW}│${NC} ${CYAN}6.${NC} Uninstall X-UI Backup Tool      ${YELLOW}│${NC}" "$YELLOW" 0.0008
-    type_line " ${YELLOW}│${NC} ${CYAN}7.${NC} Disk Cleaner (install) 3xipl    ${YELLOW}│${NC}" "$YELLOW" 0.0008
-    type_line " ${YELLOW}│${NC} ${CYAN}8.${NC} Remove Disk Cleaner             ${YELLOW}│${NC}" "$YELLOW" 0.0008
-    type_line " ${YELLOW}│${NC} ${CYAN}9.${NC} X-UI Automated Ban (TG-BOT)     ${YELLOW}│${NC}" "$YELLOW" 0.0008
-    type_line " ${YELLOW}│${NC} ${CYAN}10.${NC} Remove X-UI Ban (TG-BOT)       ${YELLOW}│${NC}" "$YELLOW" 0.0008
-    type_line " ${YELLOW}│${NC} ${CYAN}0.${NC} Exit & Create Menu Cmd          ${YELLOW}│${NC}" "$YELLOW" 0.0008
-    echo -e " ${YELLOW}└───────────────────────────────────┘${NC}\n"
-
-    # ─── PROMPT ─────────────────────────────────────
-    echo -ne "${MAGENTA}Select an option [0-10]: ${NC}"
+    echo -e " ${YELLOW}│${NC} 1. Install AMS Reboot Tools        ${YELLOW}│${NC}"
+    echo -e " ${YELLOW}│${NC} 2. Auto (db) Backup X-UI Tool      ${YELLOW}│${NC}"
+    echo -e " ${YELLOW}│${NC} 3. Update Telegram Settings        ${YELLOW}│${NC}"
+    echo -e " ${YELLOW}│${NC} 4. Send Test Telegram Message      ${YELLOW}│${NC}"
+    echo -e " ${YELLOW}│${NC} 5. Uninstall AMS Tools             ${YELLOW}│${NC}"
+    echo -e " ${YELLOW}│${NC} 6. Uninstall X-UI Backup Tool      ${YELLOW}│${NC}"
+    echo -e " ${YELLOW}│${NC} 7. Disk Cleaner (install) 3xipl    ${YELLOW}│${NC}"
+    echo -e " ${YELLOW}│${NC} 8. Remove Disk leaner              ${YELLOW}│${NC}"
+    echo -e " ${YELLOW}│${NC} 9. X-UI Automated Ban (TG-BOT)     ${YELLOW}│${NC}"
+    echo -e " ${YELLOW}│${NC} 10. Remove X-UI Ban (TG-BOT)       ${YELLOW}│${NC}"
+    echo -e " ${YELLOW}│${NC} 0. Exit & Create Menu Cmd          ${YELLOW}│${NC}"
+    echo -e " ${YELLOW}└───────────────────────────────────┘${NC}"
+    echo
 }
 
 
@@ -224,7 +209,7 @@ setup_global_alias() {
 main() {
     while true; do
         show_main_banner
-        read -r -p "Select an option [0-6]: " choice
+        read -r -p "Select an option [0-10]: " choice
         case $choice in
             1)
                 install_ams_tool
