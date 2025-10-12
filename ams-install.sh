@@ -34,48 +34,35 @@ show_main_banner() {
     clear
     GREEN='\033[1;32m'
     YELLOW='\033[1;33m'
-    NC='\033[0m'
+    CYAN='\033[1;36m'
+    NC='\033[0m'  # reset color
 
-    # Typing-style print delay
-    type_text() {
-        text="$1"
-        delay=${2:-0.002} # typing speed
-        for ((i=0; i<${#text}; i++)); do
-            printf "%s" "${text:$i:1}"
-            sleep $delay
-        done
-        printf "\n"
-    }
+    echo -e "${GREEN}─────▄▀▄─────▄▀▄"
+    echo -e "─────▄█░░▀▀▀▀▀░░█▄"
+    echo -e "─▄▄──█░░░░░░░░░░░█──▄▄"
+    echo -e "█▄▄█─█░░▀░░┬░░▀░░█─█▄▄█${NC}\n"
 
-    printf "\033c"
-    echo -e "${GREEN}"
-    type_text "─────▄▀▄─────▄▀▄"
-    type_text "─────▄█░░▀▀▀▀▀░░█▄"
-    type_text "─▄▄──█░░░░░░░░░░░█──▄▄"
-    type_text "█▄▄█─█░░▀░░┬░░▀░░█─█▄▄█"
-    echo -e "${NC}\n"
-    sleep 0.15
-
-    echo -e "${GREEN}┌───────────────────────────────────────┐${NC}"
-    type_text "${GREEN}│     🚀  POWER UP WITH A-M-S TOOL      │${NC}" 0.003
-    echo -e "${GREEN}└───────────────────────────────────────┘${NC}\n"
-    sleep 0.15
+    echo -e "${CYAN}┌───────────────────────────────────────┐${NC}"
+    echo -e "${CYAN}│${GREEN}     🚀  POWER UP WITH A-M-S TOOL      ${CYAN}│${NC}"
+    echo -e "${CYAN}└───────────────────────────────────────┘${NC}\n"
 
     echo -e "${YELLOW}┌───────────────────────────────────┐${NC}"
-    sleep 0.05
-    type_text "${YELLOW}│${NC} 1. Install AMS Reboot Tools        ${YELLOW}│${NC}" 0.001
-    type_text "${YELLOW}│${NC} 2. Auto (db) Backup X-UI Tool      ${YELLOW}│${NC}" 0.001
-    type_text "${YELLOW}│${NC} 3. Update Telegram Settings        ${YELLOW}│${NC}" 0.001
-    type_text "${YELLOW}│${NC} 4. Send Test Telegram Message      ${YELLOW}│${NC}" 0.001
-    type_text "${YELLOW}│${NC} 5. Uninstall AMS Tools             ${YELLOW}│${NC}" 0.001
-    type_text "${YELLOW}│${NC} 6. Uninstall X-UI Backup Tool      ${YELLOW}│${NC}" 0.001
-    type_text "${YELLOW}│${NC} 7. Disk Cleaner (install) 3xipl    ${YELLOW}│${NC}" 0.001
-    type_text "${YELLOW}│${NC} 8. Remove Disk Cleaner             ${YELLOW}│${NC}" 0.001
-    type_text "${YELLOW}│${NC} 9. X-UI Automated Ban (TG-BOT)     ${YELLOW}│${NC}" 0.001
-    type_text "${YELLOW}│${NC} 10. Remove X-UI Ban (TG-BOT)       ${YELLOW}│${NC}" 0.001
-    type_text "${YELLOW}│${NC} 0. Exit & Create Menu Cmd          ${YELLOW}│${NC}" 0.001
+    echo -e "${YELLOW}│${NC} ${CYAN}1.${NC} Install AMS Reboot Tools        ${YELLOW}│${NC}"
+    echo -e "${YELLOW}│${NC} ${CYAN}2.${NC} Auto (db) Backup X-UI Tool      ${YELLOW}│${NC}"
+    echo -e "${YELLOW}│${NC} ${CYAN}3.${NC} Update Telegram Settings        ${YELLOW}│${NC}"
+    echo -e "${YELLOW}│${NC} ${CYAN}4.${NC} Send Test Telegram Message      ${YELLOW}│${NC}"
+    echo -e "${YELLOW}│${NC} ${CYAN}5.${NC} Uninstall AMS Tools             ${YELLOW}│${NC}"
+    echo -e "${YELLOW}│${NC} ${CYAN}6.${NC} Uninstall X-UI Backup Tool      ${YELLOW}│${NC}"
+    echo -e "${YELLOW}│${NC} ${CYAN}7.${NC} Disk Cleaner (install) 3xipl    ${YELLOW}│${NC}"
+    echo -e "${YELLOW}│${NC} ${CYAN}8.${NC} Remove Disk Cleaner             ${YELLOW}│${NC}"
+    echo -e "${YELLOW}│${NC} ${CYAN}9.${NC} X-UI Automated Ban (TG-BOT)     ${YELLOW}│${NC}"
+    echo -e "${YELLOW}│${NC} ${CYAN}10.${NC} Remove X-UI Ban (TG-BOT)       ${YELLOW}│${NC}"
+    echo -e "${YELLOW}│${NC} ${CYAN}0.${NC} Exit & Create Menu Cmd          ${YELLOW}│${NC}"
     echo -e "${YELLOW}└───────────────────────────────────┘${NC}\n"
+
+    echo -ne "${CYAN}Select an option [0-10]: ${NC}"
 }
+
 
 
 # ======================
