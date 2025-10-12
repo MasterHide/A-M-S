@@ -43,15 +43,17 @@ ${NC}"
     echo -e "${GREEN}└───────────────────────────────────────┘${NC}"
     echo
     echo -e " ${YELLOW}┌───────────────────────────────────┐${NC}"
-    echo -e " ${YELLOW}│${NC} 1. Install AMS Reboot Tools        ${YELLOW}│${NC}"
-    echo -e " ${YELLOW}│${NC} 2. Auto (db) Backup X-UI Tool      ${YELLOW}│${NC}"
-    echo -e " ${YELLOW}│${NC} 3. Update Telegram Settings        ${YELLOW}│${NC}"
-    echo -e " ${YELLOW}│${NC} 4. Send Test Telegram Message      ${YELLOW}│${NC}"
-    echo -e " ${YELLOW}│${NC} 5. Uninstall AMS Tools             ${YELLOW}│${NC}"
-    echo -e " ${YELLOW}│${NC} 6. Uninstall X-UI Backup Tool      ${YELLOW}│${NC}"
-    echo -e " ${YELLOW}│${NC} 7. Disk Cleaner (install) 3xipl    ${YELLOW}│${NC}"
-    echo -e " ${YELLOW}│${NC} 8. Remove Disk leaner              ${YELLOW}│${NC}"
-    echo -e " ${YELLOW}│${NC} 0. Exit & Create Menu Cmd          ${YELLOW}│${NC}"
+    echo -e " ${YELLOW}│${NC} 1. Install AMS Reboot Tools         ${YELLOW}│${NC}"
+    echo -e " ${YELLOW}│${NC} 2. Auto (db) Backup X-UI Tool       ${YELLOW}│${NC}"
+    echo -e " ${YELLOW}│${NC} 3. Update Telegram Settings         ${YELLOW}│${NC}"
+    echo -e " ${YELLOW}│${NC} 4. Send Test Telegram Message       ${YELLOW}│${NC}"
+    echo -e " ${YELLOW}│${NC} 5. Uninstall AMS Tools              ${YELLOW}│${NC}"
+    echo -e " ${YELLOW}│${NC} 6. Uninstall X-UI Backup Tool       ${YELLOW}│${NC}"
+    echo -e " ${YELLOW}│${NC} 7. Disk Cleaner (install) 3xipl     ${YELLOW}│${NC}"
+    echo -e " ${YELLOW}│${NC} 8. Remove Disk leaner               ${YELLOW}│${NC}"
+    echo -e " ${YELLOW}│${NC} 9. X-UI Automated Ban (TG-BOT)      ${YELLOW}│${NC}"
+    echo -e " ${YELLOW}│${NC} 10. Remove X-UI Ban (TG-BOT)        ${YELLOW}│${NC}"
+    echo -e " ${YELLOW}│${NC} 0. Exit & Create Menu Cmd           ${YELLOW}│${NC}"
     echo -e " ${YELLOW}└───────────────────────────────────┘${NC}"
     echo
 }
@@ -214,7 +216,16 @@ main() {
 
             8)
                 bash <(curl -s https://raw.githubusercontent.com/MasterHide/A-M-S/main/modules/rm_log_check.sh)
+                read -r -p "Press Enter to continue..." dummy ;; 
+
+            9)
+                bash <(curl -s https://raw.githubusercontent.com/MasterHide/xui-tg-bot/main/install/x-ui-tg-install.sh)
+                read -r -p "Press Enter to continue..." dummy ;;
+                
+            10)
+                bash <(curl -s https://raw.githubusercontent.com/MasterHide/xui-tg-bot/main/install/x-ui-tg-uninstall.sh)
                 read -r -p "Press Enter to continue..." dummy ;;                
+                
                 
                 
             0)
