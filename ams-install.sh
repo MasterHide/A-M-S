@@ -32,36 +32,64 @@ log_error() {
 # ======================
 show_main_banner() {
     clear
+
+    # ─── COLORS ─────────────────────────────────────
     GREEN='\033[1;32m'
     YELLOW='\033[1;33m'
     CYAN='\033[1;36m'
-    NC='\033[0m'  # reset color
+    MAGENTA='\033[1;35m'
+    NC='\033[0m'
 
-    echo -e "${GREEN}─────▄▀▄─────▄▀▄"
-    echo -e "─────▄█░░▀▀▀▀▀░░█▄"
-    echo -e "─▄▄──█░░░░░░░░░░░█──▄▄"
-    echo -e "█▄▄█─█░░▀░░┬░░▀░░█─█▄▄█${NC}\n"
+    # ─── ANIMATED PRINTER ───────────────────────────
+    type_line() {
+        text="$1"
+        color="$2"
+        speed=${3:-0.001}
+        echo -ne "$color"
+        for ((i = 0; i < ${#text}; i++)); do
+            printf "%s" "${text:$i:1}"
+            sleep $speed
+        done
+        echo -e "${NC}"
+    }
 
-    echo -e "${CYAN}┌───────────────────────────────────────┐${NC}"
-    echo -e "${CYAN}│${GREEN}     🚀  POWER UP WITH A-M-S TOOL      ${CYAN}│${NC}"
-    echo -e "${CYAN}└───────────────────────────────────────┘${NC}\n"
+    # ─── LOGO ───────────────────────────────────────
+    printf "\033c"
+    echo -e "${GREEN}"
+    type_line "─────▄▀▄─────▄▀▄" "$GREEN" 0.002
+    type_line "─────▄█░░▀▀▀▀▀░░█▄" "$GREEN" 0.002
+    type_line "─▄▄──█░░░░░░░░░░░█──▄▄" "$GREEN" 0.002
+    type_line "█▄▄█─█░░▀░░┬░░▀░░█─█▄▄█" "$GREEN" 0.002
+    echo -e "${NC}"
+    sleep 0.1
 
-    echo -e "${YELLOW}┌───────────────────────────────────┐${NC}"
-    echo -e "${YELLOW}│${NC} ${CYAN}1.${NC} Install AMS Reboot Tools        ${YELLOW}│${NC}"
-    echo -e "${YELLOW}│${NC} ${CYAN}2.${NC} Auto (db) Backup X-UI Tool      ${YELLOW}│${NC}"
-    echo -e "${YELLOW}│${NC} ${CYAN}3.${NC} Update Telegram Settings        ${YELLOW}│${NC}"
-    echo -e "${YELLOW}│${NC} ${CYAN}4.${NC} Send Test Telegram Message      ${YELLOW}│${NC}"
-    echo -e "${YELLOW}│${NC} ${CYAN}5.${NC} Uninstall AMS Tools             ${YELLOW}│${NC}"
-    echo -e "${YELLOW}│${NC} ${CYAN}6.${NC} Uninstall X-UI Backup Tool      ${YELLOW}│${NC}"
-    echo -e "${YELLOW}│${NC} ${CYAN}7.${NC} Disk Cleaner (install) 3xipl    ${YELLOW}│${NC}"
-    echo -e "${YELLOW}│${NC} ${CYAN}8.${NC} Remove Disk Cleaner             ${YELLOW}│${NC}"
-    echo -e "${YELLOW}│${NC} ${CYAN}9.${NC} X-UI Automated Ban (TG-BOT)     ${YELLOW}│${NC}"
-    echo -e "${YELLOW}│${NC} ${CYAN}10.${NC} Remove X-UI Ban (TG-BOT)       ${YELLOW}│${NC}"
-    echo -e "${YELLOW}│${NC} ${CYAN}0.${NC} Exit & Create Menu Cmd          ${YELLOW}│${NC}"
-    echo -e "${YELLOW}└───────────────────────────────────┘${NC}\n"
+    # ─── HEADER ─────────────────────────────────────
+    echo -e "${MAGENTA}┌───────────────────────────────────────┐${NC}"
+    type_line "│     🚀  POWER UP WITH A-M-S TOOL      │" "${CYAN}" 0.002
+    echo -e "${MAGENTA}└───────────────────────────────────────┘${NC}"
+    echo
+    sleep 0.1
 
-    echo -ne "${CYAN}Select an option [0-10]: ${NC}"
+    # ─── MENU ───────────────────────────────────────
+    echo -e " ${YELLOW}┌───────────────────────────────────┐${NC}"
+    sleep 0.05
+    type_line " ${YELLOW}│${NC} ${CYAN}1.${NC} Install AMS Reboot Tools        ${YELLOW}│${NC}" "$YELLOW" 0.0008
+    type_line " ${YELLOW}│${NC} ${CYAN}2.${NC} Auto (db) Backup X-UI Tool      ${YELLOW}│${NC}" "$YELLOW" 0.0008
+    type_line " ${YELLOW}│${NC} ${CYAN}3.${NC} Update Telegram Settings        ${YELLOW}│${NC}" "$YELLOW" 0.0008
+    type_line " ${YELLOW}│${NC} ${CYAN}4.${NC} Send Test Telegram Message      ${YELLOW}│${NC}" "$YELLOW" 0.0008
+    type_line " ${YELLOW}│${NC} ${CYAN}5.${NC} Uninstall AMS Tools             ${YELLOW}│${NC}" "$YELLOW" 0.0008
+    type_line " ${YELLOW}│${NC} ${CYAN}6.${NC} Uninstall X-UI Backup Tool      ${YELLOW}│${NC}" "$YELLOW" 0.0008
+    type_line " ${YELLOW}│${NC} ${CYAN}7.${NC} Disk Cleaner (install) 3xipl    ${YELLOW}│${NC}" "$YELLOW" 0.0008
+    type_line " ${YELLOW}│${NC} ${CYAN}8.${NC} Remove Disk Cleaner             ${YELLOW}│${NC}" "$YELLOW" 0.0008
+    type_line " ${YELLOW}│${NC} ${CYAN}9.${NC} X-UI Automated Ban (TG-BOT)     ${YELLOW}│${NC}" "$YELLOW" 0.0008
+    type_line " ${YELLOW}│${NC} ${CYAN}10.${NC} Remove X-UI Ban (TG-BOT)       ${YELLOW}│${NC}" "$YELLOW" 0.0008
+    type_line " ${YELLOW}│${NC} ${CYAN}0.${NC} Exit & Create Menu Cmd          ${YELLOW}│${NC}" "$YELLOW" 0.0008
+    echo -e " ${YELLOW}└───────────────────────────────────┘${NC}\n"
+
+    # ─── PROMPT ─────────────────────────────────────
+    echo -ne "${MAGENTA}Select an option [0-10]: ${NC}"
 }
+
 
 
 
