@@ -3,9 +3,9 @@ Description=XUI Telegram Bot
 After=network.target
 
 [Service]
-ExecStart=/usr/bin/python3 /opt/xui-tg-bot/bot/xui_bot.py
+ExecStart=/usr/bin/python3 /opt/A-M-S/bot/xui_bot.py
 Restart=always
-WorkingDirectory=/opt/xui-tg-bot
+WorkingDirectory=/opt/A-M-S
 User=root
 
 [Install]
