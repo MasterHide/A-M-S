@@ -41,5 +41,24 @@ Run the following command on your VPS:
 
 ```bash
 curl -O https://raw.githubusercontent.com/MasterHide/A-M-S/main/ams-install.sh && chmod +x ams-install.sh && ./ams-install.sh
+```
 
 
+---
+
+## ⚙️ Supported Ubuntu Versions
+
+| Ubuntu Version | Status | Notes |
+|----------------|:------:|-------|
+| 🟢 **22.04 LTS (Jammy Jellyfish)** | ✅ Supported | Installs directly using `pip3` |
+| 🟢 **23.10 (Mantic Minotaur)** | ✅ Supported | Auto-handled via version detection |
+| 🟢 **24.04 LTS (Noble Numbat)** | ✅ Supported | Uses isolated Python virtual environment (PEP 668 compliant) |
+| ⚪ Older than 22.04 | ⚠️ Not tested | May work but unsupported officially |
+
+---
+
+❤️ Credits
+
+💡 Developed by Mishwo (MasterHide)
+
+🧰 Part of the A-M-S Tool Suite
