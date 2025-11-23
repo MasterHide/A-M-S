@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# xrestart.sh -
+# xrestart.sh - installer for xrestart worker + systemd timer (x-ui restart only)
 set -euo pipefail
 
 INSTALL_PATH="/usr/local/bin"
@@ -10,7 +10,7 @@ LOG_DIR="/var/log/xrestart"
 
 info(){ echo -e "\033[1;34m[INFO]\033[0m $*"; }
 err(){ echo -e "\033[1;31m[ERROR]\033[0m $*" >&2; }
-confirm(){ read -rp "$* [y/N]: " yn; [[ "$yn" =~ ^[Yy] ]]; }
+confirm(){ read -rp "$* [y/N]: " yn; [[ "${yn:-}" =~ ^[Yy] ]]; }
 
 # ensure running as root
 if [ "$EUID" -ne 0 ]; then
@@ -19,10 +19,10 @@ if [ "$EUID" -ne 0 ]; then
 fi
 
 # ensure required commands
-for cmd in curl jq systemctl; do
-  if ! command -v $cmd >/dev/null 2>&1; then
+for cmd in curl systemctl; do
+  if ! command -v "$cmd" >/dev/null 2>&1; then
     info "Installing missing package for $cmd"
-    apt-get update -y && apt-get install -y curl jq || { err "install $cmd failed"; exit 1; }
+    apt-get update -y && apt-get install -y curl || { err "install $cmd failed"; exit 1; }
   fi
 done
 
@@ -61,11 +61,11 @@ set -euo pipefail
 LOG_DIR="$LOG_DIR"
 LOGFILE="\${LOG_DIR}/xrestart.log"
 
-TIMESTAMP(){ date -u +"%Y-%m-%dT%H:%M:%SZ"; }
-
 TG_TOKEN="${TG_TOKEN}"
 TG_CHAT="${TG_CHAT}"
 SERVER_REMARK="${SERVER_REMARK}"
+
+TIMESTAMP(){ date -u +"%Y-%m-%dT%H:%M:%SZ"; }
 
 log(){
   mkdir -p "\$LOG_DIR"
@@ -73,29 +73,28 @@ log(){
 }
 
 send_tg(){
-  local text="$1"
-  if [ -z "$TG_TOKEN" ] || [ -z "$TG_CHAT" ]; then
+  local text="\$1"
+  if [ -z "\$TG_TOKEN" ] || [ -z "\$TG_CHAT" ]; then
     log "Telegram not configured; skipping notification."
     return 0
   fi
 
   # Escape backslashes and double quotes for JSON
   local esc
-  esc=$(printf '%s' "$text" | sed 's/\\/\\\\/g; s/"/\\"/g')
+  esc=\$(printf '%s' "\$text" | sed 's/\\\\/\\\\\\\\/g; s/"/\\"/g')
 
-  curl -s -m 10 -X POST "https://api.telegram.org/bot${TG_TOKEN}/sendMessage" \
-    -H "Content-Type: application/json" \
-    -d "{\"chat_id\":\"${TG_CHAT}\",\"text\":\"${esc}\",\"parse_mode\":\"Markdown\"}" \
+  curl -s -m 10 -X POST "https://api.telegram.org/bot\${TG_TOKEN}/sendMessage" \\
+    -H "Content-Type: application/json" \\
+    -d "{\\"chat_id\\":\\"\${TG_CHAT}\\",\\"text\\":\\"\${esc}\\",\\"parse_mode\\":\\"Markdown\\"}" \\
     >/dev/null 2>&1 || {
       log "Telegram send failed; retrying once..."
       sleep 2
-      curl -s -m 10 -X POST "https://api.telegram.org/bot${TG_TOKEN}/sendMessage" \
-        -H "Content-Type: application/json" \
-        -d "{\"chat_id\":\"${TG_CHAT}\",\"text\":\"${esc}\",\"parse_mode\":\"Markdown\"}" \
+      curl -s -m 10 -X POST "https://api.telegram.org/bot\${TG_TOKEN}/sendMessage" \\
+        -H "Content-Type: application/json" \\
+        -d "{\\"chat_id\\":\\"\${TG_CHAT}\\",\\"text\\":\\"\${esc}\\",\\"parse_mode\\":\\"Markdown\\"}" \\
         >/dev/null 2>&1 || log "Telegram send failed again."
     }
 }
-
 
 restart_via_xui(){
   log "Attempting 'x-ui restart' command..."
@@ -146,8 +145,9 @@ main(){
   exit 2
 }
 
-# TEST MODE: only send a telegram test msg + try x-ui restart
-if [ "\${1:-}" = "test" ]; then
+mode="\${1:-}"
+
+if [ "\$mode" = "test" ]; then
   log "Running in TEST mode: sending Telegram test message and trying x-ui restart."
   send_tg "🧪 *xrestart test:* server *\${SERVER_REMARK}* at \$(TIMESTAMP)"
   if command -v x-ui >/dev/null 2>&1; then
@@ -162,7 +162,7 @@ if [ "\${1:-}" = "test" ]; then
   exit 0
 fi
 
-main "\$@"
+main
 EOF
 
 chmod +x "$WORKER"
