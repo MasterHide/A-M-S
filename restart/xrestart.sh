@@ -73,24 +73,29 @@ log(){
 }
 
 send_tg(){
-  local text="\$1"
-  if [ -z "\$TG_TOKEN" ] || [ -z "\$TG_CHAT" ]; then
+  local text="$1"
+  if [ -z "$TG_TOKEN" ] || [ -z "$TG_CHAT" ]; then
     log "Telegram not configured; skipping notification."
     return 0
   fi
-  # send message (retry once on failure)
-  curl -s -m 10 -X POST "https://api.telegram.org/bot\${TG_TOKEN}/sendMessage" \
+
+  # Escape backslashes and double quotes for JSON
+  local esc
+  esc=$(printf '%s' "$text" | sed 's/\\/\\\\/g; s/"/\\"/g')
+
+  curl -s -m 10 -X POST "https://api.telegram.org/bot${TG_TOKEN}/sendMessage" \
     -H "Content-Type: application/json" \
-    -d "{\"chat_id\":\"\${TG_CHAT}\",\"text\":\$(jq -Rn --arg t \"\$text\" '\$t'),\"parse_mode\":\"Markdown\"}" \
+    -d "{\"chat_id\":\"${TG_CHAT}\",\"text\":\"${esc}\",\"parse_mode\":\"Markdown\"}" \
     >/dev/null 2>&1 || {
       log "Telegram send failed; retrying once..."
       sleep 2
-      curl -s -m 10 -X POST "https://api.telegram.org/bot\${TG_TOKEN}/sendMessage" \
+      curl -s -m 10 -X POST "https://api.telegram.org/bot${TG_TOKEN}/sendMessage" \
         -H "Content-Type: application/json" \
-        -d "{\"chat_id\":\"\${TG_CHAT}\",\"text\":\$(jq -Rn --arg t \"\$text\" '\$t'),\"parse_mode\":\"Markdown\"}" \
+        -d "{\"chat_id\":\"${TG_CHAT}\",\"text\":\"${esc}\",\"parse_mode\":\"Markdown\"}" \
         >/dev/null 2>&1 || log "Telegram send failed again."
     }
 }
+
 
 restart_via_xui(){
   log "Attempting 'x-ui restart' command..."
