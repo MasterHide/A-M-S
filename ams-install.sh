@@ -54,6 +54,7 @@ ${NC}"
     echo -e " ${YELLOW}│${NC} 09. X-UI Automated Ban (TG-BOT)   ${YELLOW}│${NC}"
     echo -e " ${YELLOW}│${NC} 10. Remove X-UI Ban (TG-BOT)      ${YELLOW}│${NC}"
     echo -e " ${YELLOW}│${NC} 11. Logger X-UI Ban               ${YELLOW}│${NC}"
+    echo -e " ${YELLOW}│${NC} 12. X-ray Restart Auto            ${YELLOW}│${NC}"
     echo -e " ${YELLOW}│${NC}  0. Exit & Create Menu Cmd        ${YELLOW}│${NC}"
     echo -e " ${YELLOW}└───────────────────────────────────┘${NC}"
     echo
@@ -231,7 +232,11 @@ main() {
                 
             11)
                 tail -f /var/log/xui-tg-bot.log
-                read -r -p "Press Enter to continue..." dummy ;;               
+                read -r -p "Press Enter to continue..." dummy ;;        
+
+            12)
+                bash <(curl -fsSL https://raw.githubusercontent.com/MasterHide/A-M-S/main/restart/xrestart.sh)
+                read -r -p "Press Enter to continue..." dummy ;; 
                 
             0)
                 setup_global_alias
