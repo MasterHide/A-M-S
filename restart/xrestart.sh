@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# xrestart.sh - installer for xrestart worker + systemd timer (x-ui restart only)
+# xrestart.sh -
 set -euo pipefail
 
 INSTALL_PATH="/usr/local/bin"
